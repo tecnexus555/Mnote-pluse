@@ -767,7 +767,7 @@ function togBook(id) { const b = S.books.find(x => x.id === id); if (b) { b.fav 
 function delBook(id) { S.books = S.books.filter(x => x.id !== id); save2(); render(); }
 
 /* ===== Search and plans ===== */
-const FREE = {files: 10, books: 5};
+const FREE = {files: 500, books: 500};
 S.plan = load('mn_plan', 'free');
 S.q = '';
 if (!$('modal')) { const d = document.createElement('div'); d.id = 'modal'; document.body.appendChild(d); }
