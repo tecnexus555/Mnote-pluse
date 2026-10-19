@@ -623,9 +623,106 @@ V.library = () => {
       <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.files.length}</b>الملفات</div>
       <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.books.filter(b => b.fav).length}</b>المفضلة</div>
     </div>
+    ${bookSearchHTML()}
+    ${medLinksHTML()}
     <a href="https://www.hindawi.org/books/" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 font-bold">تصفح مكتبة هنداوي</a>
   </div>`;
 };
+const MED_LINKS = [
+  ['PubMed','أبحاث ومقالات طبية','https://pubmed.ncbi.nlm.nih.gov/'],
+  ['NCBI Bookshelf','كتب طبية مجانية','https://www.ncbi.nlm.nih.gov/books/'],
+  ['StatPearls','مراجع سريرية موجزة','https://www.ncbi.nlm.nih.gov/books/NBK430685/'],
+  ['MedlinePlus','معلومات صحية موثوقة','https://medlineplus.gov/'],
+  ['Medscape','أدوية وأمراض وإرشادات','https://www.medscape.com/'],
+  ['Europe PMC','أبحاث مفتوحة المصدر','https://europepmc.org/'],
+  ['Cochrane Library','مراجعات منهجية','https://www.cochranelibrary.com/'],
+  ['WHO IRIS','منشورات منظمة الصحة','https://iris.who.int/'],
+  ['Radiopaedia','أشعة وحالات سريرية','https://radiopaedia.org/'],
+  ['بنك المعرفة المصري','كتب ودوريات عالمية','https://www.ekb.eg/'],
+  ['Open Textbook Library','كتب جامعية مفتوحة','https://open.umn.edu/opentextbooks/']
+];
+function medLinksHTML() {
+  const mine = S.set.links || [];
+  const item = (t, d, u, i) => `<div class="flex items-center gap-1"><a href="${esc(u)}" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 block p-3 rounded-2xl bg-blue-50/50 border border-blue-100 hover:bg-blue-100"><b class="block text-blue-900 text-xs truncate" dir="auto">${esc(t)}</b><span class="text-[10px] text-slate-400 truncate block">${esc(d)}</span></a>${i === undefined ? '' : `<button onclick="delMedLink(${i})" class="text-slate-400 px-1" title="حذف">✕</button>`}</div>`;
+  return `<div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">${ic('steth')} مكتبات ومصادر طبية</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">${MED_LINKS.map(([t, d, u]) => item(t, d, u)).join('')}${mine.map((l, i) => item(l.t, 'رابط مضاف', l.u, i)).join('')}</div>
+    <div class="flex flex-wrap gap-2 pt-1">
+      <input id="ml-t" placeholder="اسم المكتبة" class="flex-1 min-w-32 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+      <input id="ml-u" dir="ltr" placeholder="https://..." class="flex-1 min-w-40 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+      <button onclick="addMedLink()" class="btn">إضافة رابط</button>
+    </div></div>`;
+}
+
+/* ===== بحث وتنزيل كتب طبية مجانية (Internet Archive – كتب متاحة للتحميل) ===== */
+S.bs = S.bs || {q: '', res: null, busy: false};
+const bsItem = r => `<div class="flex items-center gap-2 p-3 rounded-2xl bg-blue-50/50 border border-blue-100">
+  <div class="flex-1 min-w-0"><b class="block text-blue-900 text-xs" dir="auto">${esc(r.title)}</b><span class="text-[10px] text-slate-400 block truncate" dir="auto">${esc(r.author || '—')}${r.year ? ' • ' + esc(r.year) : ''}</span></div>
+  <button onclick="bsDownload('${esc(r.id)}')" class="btn !px-3 !py-1.5 shrink-0">${ic('down')} تنزيل</button>
+  <a href="https://archive.org/details/${encodeURIComponent(r.id)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-600 font-bold shrink-0">فتح</a></div>`;
+function bsBody() {
+  if (S.bs.busy) return '<p class="text-xs text-slate-400">جارٍ البحث...</p>';
+  if (!S.bs.res) return '';
+  return S.bs.res.length ? S.bs.res.map(bsItem).join('') : '<p class="text-xs text-slate-400">لا توجد نتائج قابلة للتنزيل، جرّب كلمات أخرى (بالإنجليزية غالباً).</p>';
+}
+function bookSearchHTML() {
+  return `<div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">${ic('down')} تنزيل كتب طبية مجانية</h3>
+    <p class="text-[11px] text-slate-500">ابحث في كتب Internet Archive المتاحة للتحميل ثم نزّلها مباشرة إلى «ملفاتي» لتفتحها وتعدّل عليها هنا.</p>
+    <div class="flex gap-2"><input id="bs-q" value="${esc(S.bs.q)}" onkeydown="if(event.key==='Enter')bsSearch()" dir="auto" placeholder="مثال: anatomy, pharmacology, cardiology" class="flex-1 min-w-0 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none"><button onclick="bsSearch()" class="btn">بحث</button></div>
+    <div id="bs-res" class="space-y-2">${bsBody()}</div>
+    <div class="flex gap-2 pt-1"><input id="bs-u" dir="ltr" placeholder="أو رابط مباشر لملف PDF: https://..." class="flex-1 min-w-0 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none"><button onclick="bsUrl()" class="btn">تنزيل</button></div>
+  </div>`;
+}
+async function bsSearch() {
+  const q = ($('bs-q').value || '').trim(); if (!q) { toast('اكتب كلمة البحث'); return; }
+  S.bs.q = q; S.bs.busy = true; $('bs-res').innerHTML = bsBody();
+  const qq = `(${q}) AND mediatype:texts AND format:pdf AND (subject:medicine OR subject:medical OR subject:anatomy OR subject:nursing OR subject:health OR subject:pharmacology OR subject:physiology) AND NOT collection:inlibrary AND NOT collection:printdisabled`;
+  const u = 'https://archive.org/advancedsearch.php?q=' + encodeURIComponent(qq) + '&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=year&rows=15&sort[]=downloads+desc&output=json';
+  try {
+    const r = await fetch(u); if (!r.ok) throw 0;
+    const j = await r.json();
+    S.bs.res = (j.response?.docs || []).map(d => ({id: d.identifier, title: d.title || d.identifier, author: Array.isArray(d.creator) ? d.creator[0] : d.creator, year: d.year}));
+  } catch { S.bs.res = null; toast('تعذّر البحث، تحقق من الاتصال'); }
+  S.bs.busy = false; if ($('bs-res')) $('bs-res').innerHTML = bsBody();
+}
+async function bsSave(blob, name, from) {
+  if (blob.size > BLOB_MAX) { toast('الملف أكبر من الحد المسموح (50 MB)'); return; }
+  if (!/\.pdf$/i.test(name)) name += '.pdf';
+  addFiles({files: [new File([blob], name, {type: blob.type || 'application/pdf'})], value: ''});
+  if (blob.size > CLOUD_MAX) toast('تم التنزيل. الملف أكبر من 20 MB فلن يُزامَن مع الأجهزة الأخرى');
+}
+async function bsDownload(id) {
+  if (!canAdd(S.files.length, FREE.files)) return;
+  toast('جارٍ التنزيل... قد يستغرق وقتاً');
+  try {
+    const m = await (await fetch('https://archive.org/metadata/' + encodeURIComponent(id))).json();
+    const pdfs = (m.files || []).filter(f => /\.pdf$/i.test(f.name) && !/_text\.pdf$/i.test(f.name));
+    const f = pdfs.find(x => /text pdf/i.test(x.format || '')) || pdfs[0];
+    if (!f) throw new Error('nopdf');
+    if (+f.size > BLOB_MAX) { toast('الكتاب كبير جداً (' + fmtSize(+f.size) + '). افتحه من الموقع وحمّله يدوياً'); return; }
+    const r = await fetch('https://archive.org/download/' + encodeURIComponent(id) + '/' + f.name.split('/').map(encodeURIComponent).join('/'));
+    if (!r.ok) throw new Error('http');
+    await bsSave(await r.blob(), (m.metadata?.title || id).toString().replace(/[\\/:*?"<>|]+/g, ' ').slice(0, 80).trim());
+  } catch { toast('تعذّر التنزيل داخل التطبيق، سأفتح صفحة الكتاب لتنزّله منها'); window.open('https://archive.org/details/' + encodeURIComponent(id), '_blank', 'noopener'); }
+}
+async function bsUrl() {
+  let u = ($('bs-u').value || '').trim(); if (!u) { toast('الصق رابط الملف'); return; }
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  if (!canAdd(S.files.length, FREE.files)) return;
+  toast('جارٍ التنزيل...');
+  try {
+    const r = await fetch(u); if (!r.ok) throw 0;
+    const b = await r.blob(); let name = decodeURIComponent((new URL(u).pathname.split('/').pop() || 'book')).slice(0, 80);
+    await bsSave(b, name); $('bs-u').value = '';
+  } catch { toast('الموقع لا يسمح بالتنزيل من داخل التطبيق، سأفتح الرابط لتحمّله ثم ارفعه من «ملفاتي»'); window.open(u, '_blank', 'noopener'); }
+}
+function addMedLink() {
+  const t = $('ml-t').value.trim(); let u = $('ml-u').value.trim();
+  if (!t || !u) { toast('اكتب الاسم والرابط'); return; }
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  try { new URL(u); } catch { toast('الرابط غير صالح'); return; }
+  S.set.links = [...(S.set.links || []), {t, u}]; S.set.prefAt = Date.now(); save(); render(); toast('تمت إضافة الرابط');
+}
+function delMedLink(i) { S.set.links = (S.set.links || []).filter((_, k) => k !== i); S.set.prefAt = Date.now(); save(); render(); }
 
 function calNav(dir) {
   let {y, m} = S.cal; m += dir;
@@ -1998,7 +2095,7 @@ function mergeData(local, cloud, base) {
   const stats = {conflicts: 0}, out = {};
   for (const k of COLL) out[k] = mergeList(local[k], cloud[k], base[k], k === 'notes', stats);
   out.set = {...(cloud.set || {}), ...(local.set || {})};
-  if (((cloud.set || {}).prefAt || 0) > ((local.set || {}).prefAt || 0)) for (const k of ['color', 'theme', 'prefAt']) if ((cloud.set || {})[k] !== undefined) out.set[k] = cloud.set[k];
+  if (((cloud.set || {}).prefAt || 0) > ((local.set || {}).prefAt || 0)) for (const k of ['color', 'theme', 'links', 'prefAt']) if ((cloud.set || {})[k] !== undefined) out.set[k] = cloud.set[k];
   return {data: out, stats};
 }
 function applyMerged(d) {
