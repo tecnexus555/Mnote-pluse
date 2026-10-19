@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="tecnexus555@gmail.com">
+<meta name="copyright" content="© 2026 tecnexus555@gmail.com — جميع الحقوق محفوظة">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mnote+ | ملاحظاتك.. بشكل أذكي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  body{font-family:Tajawal,sans-serif;background:#f0f6ff}
+  .card{background:#fff;border:1px solid #eff6ff;border-radius:1.5rem;box-shadow:0 1px 3px rgba(30,64,175,.06);padding:1.25rem}
+  .mn-i{width:1em;height:1em;display:inline-block;vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .mn-i .f{fill:currentColor;fill-opacity:.16;stroke:none}
+  .mn-i .d{fill:currentColor;stroke:none}
+  .mn-tile{display:inline-flex;align-items:center;justify-content:center;width:1.95rem;height:1.95rem;border-radius:.8rem;background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#2563eb;font-size:1.1rem;box-shadow:inset 0 0 0 1px #bfdbfe;transition:all .2s}
+  .mn-tile.mn-lg{width:2.8rem;height:2.8rem;border-radius:1rem;font-size:1.6rem}
+  .mn-tile.mn-sm{width:1.75rem;height:1.75rem;border-radius:.7rem;font-size:1rem}
+  .nb.on .mn-tile,.mn-tile.g{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.35)}
+  .nb:hover .mn-tile{transform:translateY(-1px)}
+  .mn-credit{margin:2rem auto 1rem;text-align:center;font-size:.7rem;color:#64748b;line-height:1.9}
+  .mn-credit a{color:#2563eb;font-weight:700;text-decoration:none;direction:ltr;unicode-bidi:embed}
+  .nb{color:#475569}
+  .nb.on{background:#dbeafe;color:#2563eb;font-weight:700}
+  .btn{background:#2563eb;color:#fff;font-weight:700;border-radius:1rem;padding:.6rem 1.1rem;font-size:.8rem}
+  .btn:hover{background:#1d4ed8}
+  .chip{border-radius:.75rem;padding:.2rem .6rem;font-size:.7rem;font-weight:700}
+  .view{max-width:80rem;margin:0 auto}
+  input,textarea,select{font-family:Tajawal,sans-serif}
+  .ned ul{list-style:disc;padding-right:1.5rem;margin:.5rem 0}
+  .ned ol{list-style:decimal;padding-right:1.5rem;margin:.5rem 0}
+  .ned h1{font-size:1.6rem;font-weight:900;color:#1e3a8a;margin:.5rem 0}
+  .ned h2{font-size:1.3rem;font-weight:800;color:#1e3a8a;margin:.5rem 0}
+  .ned h3{font-size:1.1rem;font-weight:700;color:#1e3a8a;margin:.5rem 0}
+  .ned img{max-width:100%;border-radius:12px;margin:.5rem 0}
+  .ned a{color:#2563eb;text-decoration:underline}
+  .ned:empty:before{content:"اكتب محتوى الملاحظة...";color:#94a3b8}
+  .ned:focus{outline:none;border-color:#93c5fd}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body class="min-h-screen text-slate-800">
+<div class="flex h-screen overflow-hidden">
+
+  <aside class="hidden md:flex w-60 flex-col justify-between bg-white/90 border-l border-blue-100 p-4 shrink-0">
+    <div>
+      <div class="flex items-center gap-3 px-2 pb-4 border-b border-blue-50">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-400 text-white flex items-center justify-center font-black">MN</div>
+        <div><div class="font-black text-blue-600 text-lg">MNnote<span class="text-blue-400">+</span></div><div class="text-[10px] text-slate-400">ملاحظاتك.. بشكل أذكي</div></div>
+      </div>
+      <nav id="navSide" class="mt-4 space-y-1 text-sm font-bold"></nav>
+    </div>
+    <div class="text-center text-xs text-blue-900 font-bold p-4 rounded-3xl bg-blue-50 border border-blue-100">كل خطوة صغيرة تقربك من حلمك <svg class="mn-i" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg></div>
+    <div class="text-center text-[10px] text-slate-500 pt-3">© 2026 جميع الحقوق محفوظة<br><a href="mailto:tecnexus555@gmail.com" class="text-blue-600 font-bold" dir="ltr">tecnexus555@gmail.com</a></div>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0">
+    <header class="h-16 bg-white/80 border-b border-blue-100 px-4 md:px-6 flex items-center justify-between gap-4 shrink-0">
+      <input id="gsearch" type="text" oninput="gSearch(this.value)" placeholder="ابحث في الملاحظات والمهام والملفات والمواعيد..." class="w-full max-w-md bg-blue-50/60 border border-blue-100 rounded-full py-2 px-4 text-xs focus:outline-none">
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:block text-left"><div class="text-[10px] text-slate-400">مرحباً</div><div class="text-xs font-bold text-blue-900">Q Bank +</div></div>
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 text-white flex items-center justify-center font-bold">Q</div>
+      </div>
+    </header>
+
+    <div id="v" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6"></div>
+  </main>
+</div>
+
+<nav id="navBottom" class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-blue-100 grid grid-cols-8 text-[10px] font-bold z-40" style="padding-bottom:env(safe-area-inset-bottom,0px)"></nav>
+
+<div id="toasts" class="fixed bottom-24 md:bottom-5 left-4 z-50 space-y-2"></div>
+
+<script>
+/* ===== Icon set (SVG, duotone) ===== */
+const IC = {
+ home:'<path class="f" d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/><path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>',
+ note:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+ folder:'<path class="f" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ checkc:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/>',
+ checksq:'<rect class="f" x="3.5" y="3.5" width="17" height="17" rx="4.5"/><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.5 3 3 5-6"/>',
+ calendar:'<rect class="f" x="3" y="4.5" width="18" height="16.5" rx="3.5"/><rect x="3" y="4.5" width="18" height="16.5" rx="3.5"/><path d="M3 10h18M8 2.5v4M16 2.5v4"/>',
+ library:'<rect class="f" x="2.5" y="4" width="4.5" height="16" rx="1.2"/><rect x="2.5" y="4" width="4.5" height="16" rx="1.2"/><rect class="f" x="9" y="4" width="4.5" height="16" rx="1.2"/><rect x="9" y="4" width="4.5" height="16" rx="1.2"/><path class="f" d="M15.5 6.5l3.8-1 3 13.3-3.8 1z"/><path d="M15.5 6.5l3.8-1 3 13.3-3.8 1z"/>',
+ more:'<circle class="d" cx="5" cy="12" r="1.9"/><circle class="d" cx="12" cy="12" r="1.9"/><circle class="d" cx="19" cy="12" r="1.9"/>',
+ settings:'<path d="M4 7h9M18 7h2M4 17h2M11 17h9"/><circle class="f" cx="15.5" cy="7" r="2.5"/><circle cx="15.5" cy="7" r="2.5"/><circle class="f" cx="8.5" cy="17" r="2.5"/><circle cx="8.5" cy="17" r="2.5"/>',
+ filePdf:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+ fileWord:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M8 12.5l1.6 5.5 2.4-4.5 2.4 4.5L16 12.5"/>',
+ fileXls:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9.5 12.5l5 5.5M14.5 12.5l-5 5.5"/>',
+ filePpt:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="12" cy="15.2" r="3"/><path d="M12 12.2v3h3"/>',
+ fileTxt:'<path class="f" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h3.5"/>',
+ image:'<rect class="f" x="3" y="4" width="18" height="16" rx="3"/><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="9.5" r="1.6"/><path d="M21 16l-5-5-8.5 9"/>',
+ clip:'<path d="m20.5 11.5-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/>',
+ palette:'<path class="f" d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.6-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A3.7 3.7 0 0 0 21 8.6C21 5.4 17 3 12 3z"/><path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.6-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A3.7 3.7 0 0 0 21 8.6C21 5.4 17 3 12 3z"/><circle class="d" cx="7.5" cy="11" r="1.1"/><circle class="d" cx="10" cy="7.5" r="1.1"/><circle class="d" cx="15" cy="7.5" r="1.1"/>',
+ repeat:'<path d="M17 2.5l3.5 3.5-3.5 3.5M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5L3.5 18 7 14.5M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>',
+ timer:'<circle class="f" cx="12" cy="13.2" r="8"/><circle cx="12" cy="13.2" r="8"/><path d="M12 9v4.2l2.6 1.6M9.5 2.5h5"/>',
+ globe:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 2.6 4 5.6 4 9s-1.2 6.4-4 9c-2.8-2.6-4-5.6-4-9s1.2-6.4 4-9z"/>',
+ bot:'<rect class="f" x="4" y="8" width="16" height="11.5" rx="3.5"/><rect x="4" y="8" width="16" height="11.5" rx="3.5"/><path d="M12 8V5M2 13v3M22 13v3M9.5 17h5"/><circle cx="12" cy="3.8" r="1.1"/><circle class="d" cx="9" cy="13" r="1.2"/><circle class="d" cx="15" cy="13" r="1.2"/>',
+ crown:'<path class="f" d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5zM5.5 21.5h13"/>',
+ bell:'<path class="f" d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2.2 2.2 0 0 0 4 0"/>',
+ target:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle class="d" cx="12" cy="12" r="1.6"/>',
+ cards:'<rect class="f" x="3" y="6.5" width="12.5" height="14.5" rx="2.5"/><rect x="3" y="6.5" width="12.5" height="14.5" rx="2.5"/><path d="M8 3.5h10.5a2.5 2.5 0 0 1 2.5 2.5v11"/>',
+ help:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.2 1-1.2 1.8"/><circle class="d" cx="12" cy="17" r="1"/>',
+ steth:'<path d="M5 3v6a4.5 4.5 0 0 0 9 0V3M3.5 3H6.5M12.5 3h3M9.5 13.5V15a5.5 5.5 0 0 0 11 0v-2"/><circle class="f" cx="20.5" cy="10.8" r="2.2"/><circle cx="20.5" cy="10.8" r="2.2"/>',
+ cloud:'<path class="f" d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 10a4.2 4.2 0 0 1-.5 8.5z"/><path d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 10a4.2 4.2 0 0 1-.5 8.5z"/>',
+ mic:'<rect class="f" x="9" y="3" width="6" height="11" rx="3"/><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/>',
+ pen:'<path class="f" d="M4 20l1-4.5L16.5 4a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="M4 20l1-4.5L16.5 4a2.1 2.1 0 0 1 3 3L8 18.5zM14.5 6l3.5 3.5"/>',
+ vol:'<path class="f" d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+ mute:'<path class="f" d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM16 9.5l5 5M21 9.5l-5 5"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 10 18.7l1-1"/>',
+ hl:'<path d="m9 11-6 6v3h9l3-3M22 12l-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4z"/>',
+ erase:'<path class="f" d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6-7z"/><path d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6-7zM12.5 9.5l5 5M17.5 9.5l-5 5"/>',
+ up:'<path d="M12 16V4M7 9l5-5 5 5M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/>',
+ down:'<path d="M12 4v12M7 11l5 5 5-5M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/>',
+ x:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+ star:'<path class="f" d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8z"/><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8z"/>',
+ spark:'<path class="f" d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16v4M17 18h4"/>',
+ heart:'<path class="f" d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
+ copy:'<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M14.6 9.6a3 3 0 1 0 0 4.8"/>'
+};
+const EMO = {'🏠':['home',null],'📝':['note',null],'📁':['folder',null],'✅':['checkc',null],'📅':['calendar',null],'📚':['library',null],'⋯':['more',null],'⚙':['settings',null],'📕':['filePdf','red'],'📘':['fileWord','blue'],'📗':['fileXls','green'],'📙':['filePpt','amber'],'📄':['fileTxt','slate'],'🖼':['image','purple'],'📎':['clip','slate'],'🎨':['palette',null],'🔁':['repeat',null],'⏱':['timer',null],'🌐':['globe',null],'🤖':['bot',null],'👑':['crown',null],'🎯':['target',null]};
+const TONE = {red:['#dc2626','#fee2e2'],blue:['#2563eb','#dbeafe'],green:['#059669','#d1fae5'],amber:['#d97706','#fef3c7'],slate:['#475569','#f1f5f9'],purple:['#7c3aed','#ede9fe']};
+const ic = n => `<svg class="mn-i" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
+const emoKey = e => String(e == null ? '' : e).replace(/\ufe0f/g, '');
+const ico = e => { const m = EMO[emoKey(e)]; return m ? ic(m[0]) : e; };
+const tile = (e, size, on) => {
+  const m = EMO[emoKey(e)]; if (!m) return e;
+  const t = m[1] && TONE[m[1]];
+  return `<span class="mn-tile${size ? ' mn-' + size : ''}${on ? ' g' : ''}"${t ? ` style="color:${t[0]};background:${t[1]};box-shadow:none"` : ''}>${ic(m[0])}</span>`;
+};
+
+const NAV = [
+  ['home','الرئيسية','🏠'],['notes','ملاحظاتي','📝'],['files','ملفاتي','📁'],['tasks','المهام','✅'],
+  ['calendar','التقويم','📅'],['library','مكتبتي','📚'],['more','المزيد','⋯'],['settings','الإعدادات','⚙️']
+];
+
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const S = {
+  notes: load('mn_notes', [
+    {id:1,title:'محاضرة الجهاز الدوري',content:'الجهاز الدوري يتكون من القلب والأوعية الدموية والدم.\n\nوظائفه: تزويد الخلايا بالأكسجين، وإزالة ثاني أكسيد الكربون، والمحافظة على درجة حرارة الجسم.',tag:'طب',date:'2025/04/21'},
+    {id:2,title:'خطة الدراسة الأسبوعية',content:'تنظيم الوقت يساعدني على تحقيق أهدافي الأكاديمية.',tag:'دراسة',date:'2025/04/19'}
+  ]),
+  tasks: load('mn_tasks', [
+    {id:1,text:'مذاكرة مادة الفيزياء',pri:'عالية',done:false,when:'اليوم • 04:00 م'},
+    {id:2,text:'تسليم مشروع الرياضيات',pri:'متوسطة',done:false,when:'غداً • 10:00 ص'},
+    {id:3,text:'مراجعة ملخصات الجامعة',pri:'منخفضة',done:true,when:'السبت • 08:00 م'}
+  ]),
+  set: load('mn_set', {notif:true, sync:true}),
+  tab: 'home',
+  sel: null
+};
+S.sel = S.notes[0]?.id ?? null;
+
+const save = () => { try {
+  localStorage.setItem('mn_notes', JSON.stringify(S.notes));
+  localStorage.setItem('mn_tasks', JSON.stringify(S.tasks));
+  localStorage.setItem('mn_set', JSON.stringify(S.set));
+} catch {} };
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PRI = {'عالية':'bg-red-50 text-red-600','متوسطة':'bg-amber-50 text-amber-600','منخفضة':'bg-emerald-50 text-emerald-600'};
+const COL = {blue:'bg-blue-50 text-blue-700',green:'bg-emerald-50 text-emerald-700',purple:'bg-purple-50 text-purple-700',pink:'bg-pink-50 text-pink-700',amber:'bg-amber-50 text-amber-700'};
+const EV = {1:[['إجتماع الفريق','10:00 ص','blue']],2:[['مذاكرة الفيزياء','03:00 م','green']],3:[['مراجعة المكتبة','06:00 م','purple']],4:[['تسليم الواجب','08:00 م','pink']],6:[['مواعيد الجامعة','09:00 ص','blue']],7:[['مواعيد المستشفى','11:30 ص','green']],8:[['مذاكرة الإنجليزية','04:00 م','purple']],10:[['إجتماع المشروع','01:00 م','pink']],11:[['ورشة العمل','10:00 ص','green']],15:[['تسليم المشروع','10:00 ص','blue']],17:[['شراء الكتب','05:00 م','amber']],18:[['رحلة جامعية','08:00 ص','purple']],20:[['مراجعة الكيمياء','02:00 م','green']],22:[['محاضرة الأدب','10:00 ص','blue']],24:[['مذاكرة التاريخ','03:00 م','amber']],27:[['اختبار الفيزياء','09:00 ص','pink']],28:[['تسليم البحث','11:00 ص','blue']],30:[['مراجعة شاملة','04:00 م','green']]};
+const FILES = [['محاضرة الجهاز الدوري.pdf','2.4 MB','PDF','bg-red-50 text-red-600','📕'],['ملخص الفصل الثاني.docx','1.8 MB','Word','bg-blue-50 text-blue-600','📘'],['جدول المحاضرات.xlsx','1.1 MB','Excel','bg-emerald-50 text-emerald-600','📗'],['عرض تقديمي النظام الشمسي.pptx','3.7 MB','PowerPoint','bg-amber-50 text-amber-600','📙'],['ملاحظة سريعة.txt','256 KB','Text','bg-slate-100 text-slate-600','📄'],['صورة توضيحية.jpg','1.2 MB','Image','bg-purple-50 text-purple-600','🖼️']];
+const BOOKS = [['العادات الذرية','جيمس كلير','#1e293b'],['قوة الآن','إكهارت تول','#2563eb'],['الذكاء العاطفي','دانيال غولمان','#7c3aed'],['الصحة النفسية','—','#059669']];
+
+const cur = () => S.notes.find(n => n.id === S.sel);
+const toast = msg => { const t = document.createElement('div'); t.className = 'bg-blue-900 text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs'; t.textContent = msg; $('toasts').appendChild(t); setTimeout(() => t.remove(), 2500); };
+const $ = id => document.getElementById(id);
+
+function go(t) { S.tab = t; render(); }
+
+function renderNav() {
+  const html = NAV.map(([id,label,em]) => `<button onclick="go('${id}')" class="nb w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-blue-50 ${S.tab===id?'on':''}">${tile(em)}<span>${label}</span></button>`).join('');
+  $('navSide').innerHTML = html;
+  $('navBottom').innerHTML = NAV.map(([id,label,em]) => `<button onclick="go('${id}')" class="py-2 flex flex-col items-center ${S.tab===id?'text-blue-600':'text-slate-500'}">${tile(em, 'sm', S.tab===id)}<span class="mt-0.5">${label}</span></button>`).join('');
+}
+
+const V = {};
+
+V.home = () => {
+  const done = S.tasks.filter(t => t.done).length, pending = S.tasks.length - done;
+  return `
+  <div class="view grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="rounded-3xl p-6 text-white bg-gradient-to-l from-blue-400 via-blue-500 to-indigo-500 shadow-xl">
+        <span class="bg-white/20 text-[11px] px-3 py-1 rounded-full">مرحباً بك مجدداً ${ic('spark')}</span>
+        <h2 class="text-2xl font-black mt-3">معاً نحو مستقبل أفضل .. كل يوم</h2>
+        <button onclick="newNote();go('notes')" class="mt-5 bg-white text-blue-600 font-bold px-5 py-2.5 rounded-2xl text-xs">+ إنشاء ملاحظة جديدة</button>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs font-bold text-blue-900 mb-3"><span>أحدث ملاحظاتك</span><button onclick="go('notes')" class="text-blue-600">عرض الكل</button></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          ${S.notes.slice(0,4).map(n => `<div onclick="S.sel=${n.id};go('notes')" class="card cursor-pointer hover:border-blue-200 space-y-2"><span class="chip bg-blue-50 text-blue-600">${esc(n.tag||'عام')}</span><h4 class="font-bold text-blue-900">${esc(n.title)}</h4><p class="text-xs text-slate-400 truncate">${esc(plain(n.content))}</p></div>`).join('') || '<p class="text-xs text-slate-400">لا توجد ملاحظات بعد</p>'}
+        </div>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="card space-y-3">
+        <h3 class="font-extrabold text-sm text-blue-900">إحصائيات اليوم</h3>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="p-3 rounded-2xl bg-blue-50/50"><div class="text-xl font-black text-blue-900">${S.notes.length}</div><div class="text-[10px] text-slate-400">ملاحظات</div></div>
+          <div class="p-3 rounded-2xl bg-emerald-50/50"><div class="text-xl font-black text-emerald-900">${done}</div><div class="text-[10px] text-slate-400">مهام مكتملة</div></div>
+          <div class="p-3 rounded-2xl bg-amber-50/50"><div class="text-xl font-black text-amber-900">${pending}</div><div class="text-[10px] text-slate-400">مهام قادمة</div></div>
+          <div class="p-3 rounded-2xl bg-blue-50/50"><div class="text-xl font-black text-blue-900">${FILES.length}</div><div class="text-[10px] text-slate-400">ملفات</div></div>
+        </div>
+      </div>
+      <div class="card space-y-2 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900 mb-1">مهام اليوم</h3>
+        ${S.tasks.slice(0,3).map(t => `<div class="flex justify-between p-2.5 rounded-xl bg-blue-50/40 border border-blue-100"><span class="${t.done?'line-through text-slate-400':''}">${esc(t.text)}</span><span class="chip ${PRI[t.pri]}">${t.pri}</span></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+};
+
+V.notes = () => {
+  const n = cur();
+  return `
+  <div class="view grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-4 space-y-3">
+      <button onclick="newNote()" class="btn w-full py-3">+ ملاحظة جديدة</button>
+      <div class="space-y-3 max-h-[70vh] overflow-y-auto">
+        ${S.notes.map(x => `
+          <div onclick="S.sel=${x.id};render()" class="card cursor-pointer ${x.id===S.sel?'!border-2 !border-blue-400':''}">
+            <div class="flex justify-between items-center"><span class="chip bg-blue-50 text-blue-600">${esc(x.tag||'عام')}</span><span class="text-[10px] text-slate-400">${esc(x.date||'')}</span></div>
+            <h4 class="font-bold text-sm text-blue-900 mt-2 truncate">${esc(x.title||'بدون عنوان')}</h4>
+            <p class="text-[11px] text-slate-400 truncate">${esc(x.content||'محتوى فارغ')}</p>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="lg:col-span-8">
+      ${n ? `
+      <div class="card space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-400">ملاحظاتي ‹ ${esc(n.title)}</span>
+          <div class="flex gap-2"><button onclick="delNote()" class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold">حذف</button><button onclick="saveNote()" class="btn">حفظ</button></div>
+        </div>
+        <input id="nt" value="${esc(n.title)}" oninput="editNote('title',this.value)" class="text-2xl font-black text-blue-900 w-full focus:outline-none" placeholder="عنوان الملاحظة...">
+        <input value="${esc(n.tag||'')}" oninput="editNote('tag',this.value)" placeholder="الوسم (مثال: طب)" class="text-xs bg-blue-50 border border-blue-100 rounded-xl px-3 py-1.5 w-40 focus:outline-none">
+        <textarea oninput="editNote('content',this.value)" class="w-full h-80 bg-blue-50/30 border border-blue-100 rounded-2xl p-4 text-sm leading-relaxed focus:outline-none resize-none" placeholder="اكتب محتوى الملاحظة...">${esc(n.content)}</textarea>
+        <div class="text-[11px] text-emerald-600 font-medium">${ic('check')} تم الحفظ محلياً</div>
+      </div>` : '<div class="card text-center text-sm text-slate-400">اختر ملاحظة أو أنشئ واحدة جديدة</div>'}
+    </div>
+  </div>`;
+};
+
+V.files = () => `
+  <div class="view space-y-6">
+    <div class="card flex flex-wrap justify-between items-center gap-4">
+      <div><h2 class="text-lg font-black text-blue-900">المكتبة والملفات</h2><p class="text-xs text-slate-400">كل ملفاتك في مكان واحد</p></div>
+      <button onclick="toast('ميزة الرفع تحتاج خادماً لحفظ الملفات')" class="btn">${ic('up')} رفع ملف</button>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-center text-xs">
+      ${[['جميع الملفات',56,'📁'],['PDF',18,'📕'],['Word',14,'📘'],['Excel',8,'📗'],['PowerPoint',6,'📙'],['الصور',6,'🖼️'],['أخرى',4,'📄']].map(([a,b,c],i)=>`<div class="card !p-3 space-y-1 cursor-pointer ${i===0?'!bg-blue-600 !text-white':''}"><div class="text-xl">${tile(c)}</div><div class="font-bold">${a}</div><div class="opacity-70">${b}</div></div>`).join('')}
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      ${[['مذكرات دراسية',8,'bg-purple-50'],['محاضرات',12,'bg-blue-50'],['أبحاث',6,'bg-emerald-50'],['مشاريع',4,'bg-pink-50']].map(([a,b,c])=>`<div class="card ${c} flex items-center gap-3"><div>${tile('📁','lg')}</div><div><div class="font-bold text-sm text-blue-900">${a}</div><div class="text-[11px] text-slate-400">${b} ملفات</div></div></div>`).join('')}
+    </div>
+    <div class="card space-y-2">
+      <h3 class="font-extrabold text-sm text-blue-900 mb-2">الملفات الأخيرة</h3>
+      ${FILES.map(([n,s,t,c,i])=>`<div class="flex items-center justify-between p-3 rounded-2xl bg-blue-50/30 border border-blue-100 text-xs"><div class="flex items-center gap-3"><span class="text-xl">${i}</span><span class="font-bold text-blue-900">${esc(n)}</span></div><div class="flex items-center gap-4 text-slate-500"><span>${s}</span><span class="chip ${c}">${t}</span></div></div>`).join('')}
+    </div>
+  </div>`;
+
+V.tasks = () => `
+  <div class="view grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-9 space-y-4">
+      <div class="card flex items-center justify-between"><div><h2 class="text-lg font-black text-blue-900">خطط اليوم .. وحقق أهدافك</h2><p class="text-xs text-slate-400">كل مهمة تنجزها تقربك من نسخة أفضل منك</p></div></div>
+      <div class="card space-y-3">
+        <h3 class="font-extrabold text-sm text-blue-900">قائمة المهام</h3>
+        ${S.tasks.map(t => `
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-blue-50/30 border border-blue-100 text-xs">
+            <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" ${t.done?'checked':''} onchange="togTask(${t.id})" class="w-4 h-4 accent-blue-600"><span class="font-bold ${t.done?'line-through text-slate-400':'text-blue-900'}">${esc(t.text)}</span></label>
+            <div class="flex items-center gap-3"><span class="chip ${PRI[t.pri]}">${t.pri}</span><span class="text-slate-500 hidden sm:inline">${esc(t.when||'')}</span><button onclick="delTask(${t.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div>
+          </div>`).join('') || '<p class="text-xs text-slate-400">لا توجد مهام</p>'}
+        <div class="flex gap-2 pt-2">
+          <input id="ti" placeholder="أضف مهمة جديدة..." onkeydown="if(event.key==='Enter')addTask()" class="flex-1 bg-blue-50/60 border border-blue-100 rounded-2xl px-4 py-3 text-xs focus:outline-none">
+          <select id="tp" class="bg-blue-50 border border-blue-100 rounded-2xl px-3 text-xs"><option>متوسطة</option><option>عالية</option><option>منخفضة</option></select>
+          <button onclick="addTask()" class="btn">إضافة</button>
+        </div>
+      </div>
+    </div>
+    <div class="lg:col-span-3 space-y-4">
+      <div class="card space-y-3 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900">إحصائيات المهام</h3>
+        <div class="flex justify-between"><span>إجمالي المهام</span><b>${S.tasks.length}</b></div>
+        <div class="flex justify-between"><span>مكتملة</span><b class="text-emerald-600">${S.tasks.filter(t=>t.done).length}</b></div>
+        <div class="flex justify-between"><span>قيد التنفيذ</span><b class="text-blue-600">${S.tasks.filter(t=>!t.done).length}</b></div>
+        <div class="h-2 bg-blue-100 rounded-full overflow-hidden"><div class="h-full bg-blue-600" style="width:${S.tasks.length?Math.round(S.tasks.filter(t=>t.done).length/S.tasks.length*100):0}%"></div></div>
+      </div>
+    </div>
+  </div>`;
+
+V.calendar = () => {
+  const cells = ['','','',...Array.from({length:30},(_,i)=>i+1)];
+  while (cells.length % 7) cells.push('');
+  return `
+  <div class="view grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-9 space-y-4">
+      <div class="card flex flex-wrap justify-between items-center gap-3">
+        <div><h2 class="font-black text-blue-900">تنظيم وقتك .. يصنع إنجازاتك</h2><p class="text-xs text-slate-400">مع Mnote+، لا تفوت أي موعد مهم</p></div>
+        <div class="font-bold text-blue-900">‹ أبريل 2025 ›</div>
+      </div>
+      <div class="card">
+        <div class="grid grid-cols-7 text-center gap-2 text-xs font-bold text-slate-400 bg-blue-50/50 p-2 rounded-2xl mb-2">
+          ${['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'].map(d=>`<span>${d}</span>`).join('')}
+        </div>
+        <div class="grid grid-cols-7 gap-2">
+          ${cells.map(d => `<div class="min-h-20 p-1.5 rounded-xl border ${d===15?'border-2 border-blue-500 bg-blue-50/60':'border-blue-50 bg-white'} text-xs space-y-1">
+            ${d ? `<div class="font-bold text-blue-900">${d}</div>` : ''}
+            ${d && EV[d] ? EV[d].map(([t,tm,c])=>`<div class="${COL[c]} rounded-md px-1.5 py-0.5 truncate text-[10px]" title="${t} ${tm}">${t}</div>`).join('') : ''}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="lg:col-span-3 space-y-4">
+      <div class="card space-y-3 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900">مواعيدي اليوم</h3>
+        <div class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100"><b>تسليم المشروع</b><div class="text-slate-400">10:00 ص • مكتب الإدارة</div></div>
+        <div class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100"><b>محاضرة الأدب</b><div class="text-slate-400">12:00 م • قاعة 3</div></div>
+        <div class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100"><b>مذاكرة الكيمياء</b><div class="text-slate-400">03:00 م • المنزل</div></div>
+      </div>
+    </div>
+  </div>`;
+};
+
+V.library = () => `
+  <div class="view space-y-6">
+    <div class="card flex flex-wrap justify-between items-center gap-4">
+      <div><h2 class="text-lg font-black text-blue-900">${ic('library')} مكتبتي</h2><p class="text-xs text-slate-400">كل كتبك وملفاتك في مكان واحد</p></div>
+      <a href="https://www.hindawi.org/books/" target="_blank" rel="noopener" class="btn">تصفح مكتبة هنداوي</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      ${BOOKS.map(([t,a,c])=>`<div class="card space-y-3"><div class="h-40 rounded-2xl flex items-center justify-center text-white font-black text-center p-3" style="background:${c}">${t}</div><div><div class="font-bold text-sm text-blue-900">${t}</div><div class="text-[11px] text-slate-400">${a}</div></div></div>`).join('')}
+    </div>
+    <div class="card text-xs grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">12</b>الكتب</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">24</b>الملاحظات</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">38</b>الملفات</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">8</b>المفضلة</div>
+    </div>
+  </div>`;
+
+V.more = () => `
+  <div class="view grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="rounded-3xl p-6 text-white bg-gradient-to-l from-blue-400 via-blue-500 to-indigo-500"><h2 class="text-2xl font-black">كل ما تحتاجه في مكان واحد</h2><p class="text-xs text-blue-100 mt-1">استكشف الأدوات التي تساعدك على تنظيم حياتك الدراسية والعملية</p></div>
+      <div class="card space-y-3">
+        <h3 class="font-extrabold text-sm text-blue-900">أدوات الإنتاجية</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+          ${[['📅','مخطط اليوم'],['🎨','تصميم الملاحظات'],['🔁','محول الملفات'],['⏱️','حاسبة الوقت'],['🌐','الترجمة السريعة'],['📄','قارئ المستندات'],['🤖','الذكاء الاصطناعي'],['✅','قائمة المهام الذكية']].map(([i,t])=>`<div onclick="openTool('${t}')" class="p-4 rounded-2xl bg-blue-50/40 border border-blue-100 hover:bg-blue-50 cursor-pointer"><div>${tile(i,'lg')}</div><div class="font-bold text-blue-900 mt-1">${t}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card space-y-3">
+        <h3 class="font-extrabold text-sm text-blue-900">المساعدة والدعم</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+          ${['الأسئلة الشائعة','تواصل معنا','دليل الاستخدام','الدعم الفني'].map(t=>`<div class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 font-bold text-blue-900">${t}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="card space-y-3 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900">حسابي</h3>
+        <div class="flex items-center gap-3 p-3 rounded-2xl bg-blue-50/40"><div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">Q</div><div><b>Q Bank +</b><div class="text-slate-400">qbank2025@gmail.com</div></div></div>
+        <button onclick="go('settings')" class="w-full bg-blue-50 text-blue-600 font-bold py-2.5 rounded-xl">إدارة الحساب</button>
+      </div>
+      <div class="rounded-3xl p-6 text-white bg-gradient-to-tr from-blue-600 to-indigo-600 text-center space-y-3">
+        <div class="text-3xl text-amber-300">${ic('crown')}</div><h3 class="font-extrabold">استمتع بتجربة كاملة</h3>
+        <p class="text-xs text-blue-100">مكتبة غير محدودة، ميزات الذكاء الاصطناعي، وتخزين سحابي أكبر.</p>
+        <button onclick="openUpgrade()" class="w-full bg-white text-blue-600 font-bold py-2.5 rounded-2xl text-xs">ترقية الآن</button>
+      </div>
+    </div>
+  </div>`;
+
+V.settings = () => `
+  <div class="view grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card space-y-5 lg:col-span-2">
+      <div><h2 class="text-lg font-black text-blue-900">${ic('settings')} التخصيص والعرض</h2><p class="text-xs text-slate-400">اجعل تطبيقك يعكس ذوقك الخاص</p></div>
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-blue-900">ألوان التطبيق</div>
+        <div class="flex gap-2">${['#2563eb','#7c3aed','#059669','#db2777','#d97706','#1e293b'].map(c=>`<span class="w-8 h-8 rounded-full border-2 border-white shadow" style="background:${c}"></span>`).join('')}</div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div class="text-xs font-bold text-blue-900">التفضيلات</div>
+        ${[['notif','الإشعارات','ابق على اطلاع دائم بمهامك ومواعيدك'],['sync','المزامنة التلقائية','تحديث بياناتك باستمرار']].map(([k,t,d])=>`
+          <div class="flex items-center justify-between p-3 rounded-2xl bg-blue-50/40 border border-blue-100">
+            <div><div class="font-bold text-slate-800">${t}</div><div class="text-[10px] text-slate-400">${d}</div></div>
+            <button onclick="S.set.${k}=!S.set.${k};save();render()" class="w-11 h-6 rounded-full relative transition ${S.set[k]?'bg-blue-600':'bg-slate-300'}"><span class="absolute top-0.5 w-5 h-5 bg-white rounded-full transition ${S.set[k]?'right-0.5':'right-[22px]'}"></span></button>
+          </div>`).join('')}
+      </div>
+      <div class="flex gap-3">
+        <button onclick="save();toast('تم حفظ الإعدادات')" class="btn">حفظ التغييرات</button>
+        <button onclick="if(confirm('استعادة البيانات الافتراضية؟')){localStorage.clear();location.reload()}" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs">إعادة تعيين</button>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div class="rounded-3xl p-6 text-white bg-gradient-to-tr from-blue-600 to-indigo-600 text-center space-y-2"><img src="assets/ai-teacher-robot.webp" alt="المعلم الذكي" class="h-24 w-24 mx-auto object-contain rounded-2xl bg-white/30"><h3 class="font-extrabold">المعلم الذكي</h3><p class="text-xs text-blue-100">مساعدك في التعلم والإبداع والتلخيص الفوري</p></div>
+      <div class="card text-xs text-slate-500">إعداداتك محفوظة تلقائياً على هذا المتصفح.</div>
+    </div>
+  </div>`;
+
+function render() {
+  renderNav();
+  $('v').innerHTML = V[S.tab]();
+}
+
+function newNote() {
+  const n = {id: Date.now(), title: 'ملاحظة جديدة', content: '', tag: 'عام', date: new Date().toLocaleDateString('ar-EG')};
+  S.notes.unshift(n); S.sel = n.id; save(); toast('أُنشئت ملاحظة جديدة');
+}
+function editNote(f, v) { const n = cur(); if (n) { n[f] = v; save(); } }
+function saveNote() { save(); toast('تم حفظ الملاحظة'); }
+function delNote() {
+  if (!confirm('حذف هذه الملاحظة؟')) return;
+  S.notes = S.notes.filter(n => n.id !== S.sel); S.sel = S.notes[0]?.id ?? null; save(); render();
+}
+
+function addTask() {
+  const i = $('ti'), text = i.value.trim();
+  if (!text) return;
+  S.tasks.push({id: Date.now(), text, pri: $('tp').value, done: false, when: ''});
+  save(); render(); toast('تمت إضافة المهمة');
+}
+function togTask(id) { const t = S.tasks.find(x => x.id === id); if (t) { t.done = !t.done; save(); render(); } }
+function delTask(id) { S.tasks = S.tasks.filter(x => x.id !== id); save(); render(); }
+
+/* ===== Persistent calendar, files and library ===== */
+const ydm = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const fmtSize = b => b >= 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1, Math.round(b/1024))+' KB';
+const EXT = {pdf:['PDF','bg-red-50 text-red-600','📕'],doc:['Word','bg-blue-50 text-blue-600','📘'],docx:['Word','bg-blue-50 text-blue-600','📘'],xls:['Excel','bg-emerald-50 text-emerald-600','📗'],xlsx:['Excel','bg-emerald-50 text-emerald-600','📗'],ppt:['PowerPoint','bg-amber-50 text-amber-600','📙'],pptx:['PowerPoint','bg-amber-50 text-amber-600','📙'],jpg:['Image','bg-purple-50 text-purple-600','🖼️'],jpeg:['Image','bg-purple-50 text-purple-600','🖼️'],png:['Image','bg-purple-50 text-purple-600','🖼️'],txt:['Text','bg-slate-100 text-slate-600','📄']};
+const KNOWN = ['PDF','Word','Excel','PowerPoint','Image','Text'];
+const extOf = n => EXT[(n.split('.').pop() || '').toLowerCase()] || ['أخرى','bg-slate-100 text-slate-600','📎'];
+const BCOL = ['#1e293b','#2563eb','#7c3aed','#059669','#db2777','#d97706'];
+
+S.cal = S.cal || {y:2025, m:3};
+S.selDay = S.selDay || 15;
+S.fcat = S.fcat || 'الكل';
+S.bfav = S.bfav || false;
+S.events = load('mn_events', Object.entries(EV).flatMap(([d,list]) => list.map(([t,tm,c],i) => ({id:+d*100+i, date:ydm(2025,3,+d), title:t, time:tm, color:c}))));
+S.files = load('mn_files', FILES.map(([n,s,t,c,i],k) => ({id:k+1, name:n, size:s, type:t, cls:c, icon:i, fav:false})));
+S.books = load('mn_books', BOOKS.map(([t,a,c],k) => ({id:k+1, title:t, author:a, color:c, fav:k===0})));
+
+const save2 = () => { try {
+  localStorage.setItem('mn_events', JSON.stringify(S.events));
+  localStorage.setItem('mn_files', JSON.stringify(S.files));
+  localStorage.setItem('mn_books', JSON.stringify(S.books));
+} catch {} };
+
+V.calendar = () => {
+  const {y,m} = S.cal;
+  const days = new Date(y, m+1, 0).getDate();
+  const offset = (new Date(y, m, 1).getDay() + 1) % 7; // الأسبوع يبدأ بالسبت
+  const cells = [...Array(offset).fill(null), ...Array.from({length:days}, (_,i) => i+1)];
+  while (cells.length % 7) cells.push(null);
+  const dayEv = d => S.events.filter(e => e.date === ydm(y, m, d));
+  const monthName = new Date(y, m, 1).toLocaleDateString('ar-EG', {month:'long', year:'numeric'});
+  const prefix = `${y}-${String(m+1).padStart(2,'0')}`;
+  const upcoming = S.events.filter(e => e.date.startsWith(prefix)).sort((a,b) => a.date.localeCompare(b.date)).slice(0,5);
+  const sel = dayEv(S.selDay);
+  return `
+  <div class="view grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-9 space-y-4">
+      <div class="card flex flex-wrap justify-between items-center gap-3">
+        <div><h2 class="font-black text-blue-900">تنظيم وقتك .. يصنع إنجازاتك</h2><p class="text-xs text-slate-400">مع Mnote+، لا تفوت أي موعد مهم</p></div>
+        <div class="flex items-center gap-2 font-bold text-blue-900">
+          <button onclick="calNav(-1)" class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600">›</button>
+          <span class="min-w-40 text-center">${monthName}</span>
+          <button onclick="calNav(1)" class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600">‹</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="grid grid-cols-7 text-center gap-2 text-xs font-bold text-slate-400 bg-blue-50/50 p-2 rounded-2xl mb-2">
+          ${['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'].map(d => `<span>${d}</span>`).join('')}
+        </div>
+        <div class="grid grid-cols-7 gap-2">
+          ${cells.map(d => d === null ? '<div></div>' : `
+            <div onclick="pickDay(${d})" class="min-h-20 p-1.5 rounded-xl border cursor-pointer text-xs space-y-1 ${d===S.selDay ? 'border-2 border-blue-500 bg-blue-50/60' : 'border-blue-50 bg-white hover:border-blue-200'}">
+              <div class="font-bold text-blue-900">${d}</div>
+              ${dayEv(d).slice(0,2).map(e => `<div class="${COL[e.color]} rounded-md px-1.5 py-0.5 truncate text-[10px]">${esc(e.title)}</div>`).join('')}
+              ${dayEv(d).length > 2 ? `<div class="text-[10px] text-slate-400">+${dayEv(d).length-2}</div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="lg:col-span-3 space-y-4">
+      <div class="card space-y-3 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900">مواعيد ${S.selDay} ${monthName}</h3>
+        ${sel.length ? sel.map(e => `<div class="flex justify-between items-center p-3 rounded-2xl bg-blue-50/40 border border-blue-100"><div><b>${esc(e.title)}</b><div class="text-slate-400">${esc(e.time)}</div></div><button onclick="delEvent(${e.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div>`).join('') : '<p class="text-slate-400">لا توجد مواعيد في هذا اليوم</p>'}
+        <div class="space-y-2 pt-2 border-t border-blue-50">
+          <input id="ev-t" placeholder="عنوان الموعد" class="w-full bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 focus:outline-none">
+          <div class="flex gap-2">
+            <input id="ev-tm" placeholder="10:00 ص" class="flex-1 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 focus:outline-none">
+            <select id="ev-c" class="bg-blue-50 border border-blue-100 rounded-xl px-2">
+              <option value="blue">موعد</option><option value="green">مهمة</option><option value="purple">حدث</option><option value="amber">اجتماع</option><option value="pink">امتحان</option>
+            </select>
+          </div>
+          <button onclick="addEvent()" class="btn w-full">+ إضافة موعد</button>
+        </div>
+      </div>
+      <div class="card space-y-2 text-xs">
+        <h3 class="font-extrabold text-sm text-blue-900">قادمة هذا الشهر</h3>
+        ${upcoming.map(e => `<div class="flex justify-between p-2 rounded-xl bg-blue-50/40"><span>${esc(e.title)}</span><span class="text-slate-400">${e.date.slice(8)}</span></div>`).join('') || '<p class="text-slate-400">لا توجد مواعيد</p>'}
+      </div>
+    </div>
+  </div>`;
+};
+
+V.files = () => {
+  const cats = ['الكل', ...KNOWN, 'أخرى'];
+  const inCat = (f, c) => c === 'الكل' || (c === 'أخرى' ? !KNOWN.includes(f.type) : f.type === c);
+  const shown = S.files.filter(f => inCat(f, S.fcat));
+  return `
+  <div class="view space-y-6">
+    <div class="card flex flex-wrap justify-between items-center gap-4">
+      <div><h2 class="text-lg font-black text-blue-900">المكتبة والملفات</h2><p class="text-xs text-slate-400">كل ملفاتك في مكان واحد</p></div>
+      <label class="btn cursor-pointer">${ic('up')} رفع ملف<input type="file" multiple class="hidden" onchange="addFiles(this)"></label>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-center text-xs">
+      ${cats.map(c => `<button onclick="S.fcat='${c}';render()" class="card !p-3 space-y-1 ${S.fcat===c ? '!bg-blue-600 !text-white' : ''}"><div class="font-bold">${c}</div><div class="opacity-70">${S.files.filter(f => inCat(f,c)).length}</div></button>`).join('')}
+    </div>
+    <div class="card space-y-2">
+      <h3 class="font-extrabold text-sm text-blue-900 mb-2">الملفات (${shown.length})</h3>
+      ${shown.map(f => `<div class="flex items-center justify-between p-3 rounded-2xl bg-blue-50/30 border border-blue-100 text-xs gap-2"><div class="flex items-center gap-3 min-w-0"><span>${tile(f.icon)}</span><span class="font-bold text-blue-900 truncate">${esc(f.name)}</span></div><div class="flex items-center gap-3 text-slate-500 shrink-0"><span class="hidden sm:inline">${esc(f.size)}</span><span class="chip ${f.cls}">${esc(f.type)}</span><button onclick="togFile(${f.id})" class="${f.fav ? 'text-amber-400' : 'text-slate-300'}">${ic('star')}</button><button onclick="delFile(${f.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div></div>`).join('') || '<p class="text-xs text-slate-400">لا توجد ملفات في هذا القسم</p>'}
+    </div>
+    <p class="text-[11px] text-slate-400">تُحفظ بيانات الملف (الاسم والحجم والنوع) في هذا المتصفح فقط، ولا يُرفع محتوى الملف إلى خادم في هذه النسخة.</p>
+  </div>`;
+};
+
+V.library = () => {
+  const shown = S.books.filter(b => !S.bfav || b.fav);
+  return `
+  <div class="view space-y-6">
+    <div class="card flex flex-wrap justify-between items-center gap-4">
+      <div><h2 class="text-lg font-black text-blue-900">${ic('library')} مكتبتي</h2><p class="text-xs text-slate-400">كل كتبك في مكان واحد</p></div>
+      <button onclick="S.bfav=!S.bfav;render()" class="px-4 py-2 rounded-2xl text-xs font-bold ${S.bfav ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}">${ic('star')} المفضلة</button>
+    </div>
+    <div class="card space-y-3">
+      <h3 class="font-extrabold text-sm text-blue-900">إضافة كتاب</h3>
+      <div class="flex flex-wrap gap-2">
+        <input id="bk-t" placeholder="عنوان الكتاب" class="flex-1 min-w-40 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+        <input id="bk-a" placeholder="المؤلف" class="flex-1 min-w-32 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+        <button onclick="addBook()" class="btn">إضافة</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      ${shown.map(b => `<div class="card space-y-3"><div class="h-40 rounded-2xl flex items-center justify-center text-white font-black text-center p-3" style="background:${b.color}">${esc(b.title)}</div><div class="flex justify-between items-start gap-2"><div class="min-w-0"><div class="font-bold text-sm text-blue-900 truncate">${esc(b.title)}</div><div class="text-[11px] text-slate-400 truncate">${esc(b.author || '—')}</div></div><div class="flex gap-1 shrink-0"><button onclick="togBook(${b.id})" class="${b.fav ? 'text-amber-400' : 'text-slate-300'}">${ic('star')}</button><button onclick="delBook(${b.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div></div></div>`).join('') || '<p class="text-xs text-slate-400 col-span-full">لا توجد كتب في هذا القسم</p>'}
+    </div>
+    <div class="card text-xs grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.books.length}</b>الكتب</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.notes.length}</b>الملاحظات</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.files.length}</b>الملفات</div>
+      <div class="p-3 rounded-2xl bg-blue-50/50"><b class="text-blue-900 text-lg block">${S.books.filter(b => b.fav).length}</b>المفضلة</div>
+    </div>
+    <a href="https://www.hindawi.org/books/" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 font-bold">تصفح مكتبة هنداوي</a>
+  </div>`;
+};
+
+function calNav(dir) {
+  let {y, m} = S.cal; m += dir;
+  if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; }
+  S.cal = {y, m}; S.selDay = 1; render();
+}
+function pickDay(d) { S.selDay = d; render(); }
+function addEvent() {
+  const t = $('ev-t').value.trim();
+  if (!t) { toast('اكتب عنوان الموعد أولاً'); return; }
+  S.events.push({id:Date.now(), date:ydm(S.cal.y, S.cal.m, S.selDay), title:t, time:$('ev-tm').value.trim() || '—', color:$('ev-c').value});
+  save2(); render(); toast('تمت إضافة الموعد');
+}
+function delEvent(id) { S.events = S.events.filter(e => e.id !== id); save2(); render(); }
+
+function addFiles(input) {
+  if (!canAdd(S.files.length, FREE.files)) return;
+  [...input.files].forEach((f,k) => {
+    const [type, cls, icon] = extOf(f.name);
+    S.files.unshift({id:Date.now()+k, name:f.name, size:fmtSize(f.size), type, cls, icon, fav:false});
+  });
+  save2(); render(); toast('تمت إضافة الملفات');
+}
+function togFile(id) { const f = S.files.find(x => x.id === id); if (f) { f.fav = !f.fav; save2(); render(); } }
+function delFile(id) { S.files = S.files.filter(x => x.id !== id); save2(); render(); }
+
+function addBook() {
+  if (!canAdd(S.books.length, FREE.books)) return;
+  const t = $('bk-t').value.trim();
+  if (!t) { toast('اكتب عنوان الكتاب أولاً'); return; }
+  S.books.unshift({id:Date.now(), title:t, author:$('bk-a').value.trim(), color:BCOL[S.books.length % BCOL.length], fav:false});
+  save2(); render(); toast('تمت إضافة الكتاب');
+}
+function togBook(id) { const b = S.books.find(x => x.id === id); if (b) { b.fav = !b.fav; save2(); render(); } }
+function delBook(id) { S.books = S.books.filter(x => x.id !== id); save2(); render(); }
+
+/* ===== Search and plans ===== */
+const FREE = {files: 10, books: 5};
+S.plan = load('mn_plan', 'free');
+S.q = '';
+if (!$('modal')) { const d = document.createElement('div'); d.id = 'modal'; document.body.appendChild(d); }
+
+const isPro = () => S.plan === 'pro';
+function canAdd(count, limit) {
+  if (isPro() || count < limit) return true;
+  toast('وصلت إلى حد النسخة المجانية');
+  openUpgrade();
+  return false;
+}
+
+function openUpgrade() {
+  const pro = isPro();
+  $('modal').innerHTML = `
+  <div onclick="closeUpgrade()" class="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl">
+      <div class="text-center space-y-1"><div class="text-3xl text-amber-500">${ic('crown')}</div><h3 class="font-black text-lg text-blue-900">Mnote+ المميزة</h3><p class="text-xs text-slate-400">اختر الخطة المناسبة لك</p></div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="p-4 rounded-2xl border ${!pro ? 'border-blue-500 bg-blue-50/50' : 'border-blue-100'} space-y-2">
+          <div class="font-black text-blue-900">المجانية</div><div class="text-slate-400">مجاناً</div>
+          <ul class="space-y-1 text-slate-600"><li>• حتى ${FREE.files} ملفات</li><li>• حتى ${FREE.books} كتب</li><li>• ملاحظات ومهام غير محدودة</li></ul>
+        </div>
+        <div class="p-4 rounded-2xl border ${pro ? 'border-blue-500 bg-blue-50/50' : 'border-blue-100'} space-y-2">
+          <div class="font-black text-blue-900">المميزة</div><div class="text-slate-400">تجريبي</div>
+          <ul class="space-y-1 text-slate-600"><li>• ملفات وكتب بلا حد</li><li>• مزامنة سحابية (قريباً)</li><li>• ميزات الذكاء الاصطناعي (قريباً)</li></ul>
+        </div>
+      </div>
+      ${pro
+        ? '<button onclick="setPlan(\'free\')" class="w-full py-2.5 rounded-2xl bg-blue-50 text-blue-600 font-bold text-xs">العودة إلى الخطة المجانية</button>'
+        : '<button onclick="setPlan(\'pro\')" class="btn w-full py-3">تفعيل المميزة (تجريبي)</button>'}
+      <p class="text-[11px] text-slate-400 text-center">هذا التفعيل تجريبي، ولا يتم فيه أي دفع ولا تُربط بطاقة ولا تُحصّل رسوم.</p>
+    </div>
+  </div>`;
+}
+function closeUpgrade() { $('modal').innerHTML = ''; }
+function setPlan(p) {
+  S.plan = p;
+  try { localStorage.setItem('mn_plan', JSON.stringify(p)); } catch {}
+  closeUpgrade(); render();
+  toast(p === 'pro' ? 'تم تفعيل المميزة (تجريبي)' : 'تم الرجوع إلى الخطة المجانية');
+}
+
+function gSearch(q) {
+  S.q = q.trim();
+  $('v').innerHTML = S.q ? V.search() : V[S.tab]();
+}
+function openEvent(d) {
+  S.cal = {y: +d.slice(0,4), m: +d.slice(5,7) - 1};
+  S.selDay = +d.slice(8);
+  go('calendar');
+}
+
+V.search = () => {
+  const q = S.q.toLowerCase();
+  const hit = s => String(s ?? '').toLowerCase().includes(q);
+  const notes = S.notes.filter(n => hit(n.title) || hit(plain(n.content)) || hit(tagsOf(n).join(' ')));
+  const tasks = S.tasks.filter(t => hit(t.text) || hit(t.pri));
+  const files = S.files.filter(f => hit(f.name) || hit(f.type));
+  const books = S.books.filter(b => hit(b.title) || hit(b.author));
+  const events = S.events.filter(e => hit(e.title) || hit(e.time));
+  const total = notes.length + tasks.length + files.length + books.length + events.length;
+  const sec = (title, items, fn) => items.length ? `<div class="card space-y-2"><h3 class="font-extrabold text-sm text-blue-900">${title} (${items.length})</h3>${items.map(fn).join('')}</div>` : '';
+  const row = (onc, main, sub) => `<div onclick="${onc}" class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 text-xs cursor-pointer hover:bg-blue-50"><div class="font-bold text-blue-900">${esc(main)}</div><div class="text-slate-400 truncate">${esc(sub)}</div></div>`;
+  return `<div class="view space-y-4">
+    <div class="text-xs text-slate-500">نتائج البحث عن "<b>${esc(S.q)}</b>": ${total}</div>
+    ${total === 0 ? '<div class="card text-center text-sm text-slate-400">لا توجد نتائج مطابقة</div>' : ''}
+    ${sec('الملاحظات', notes, n => row(`S.sel=${n.id};go('notes')`, n.title, plain(n.content)))}
+    ${sec('المهام', tasks, t => row(`go('tasks')`, t.text, t.pri + (t.done ? ' • مكتملة' : '')))}
+    ${sec('الملفات', files, f => row(`go('files')`, f.name, f.type + ' • ' + f.size))}
+    ${sec('الكتب', books, b => row(`go('library')`, b.title, b.author || ''))}
+    ${sec('المواعيد', events, e => row(`openEvent('${e.date}')`, e.title, e.date + ' • ' + e.time))}
+  </div>`;
+};
+
+function go(t) {
+  S.tab = t; S.q = '';
+  const i = $('gsearch'); if (i) i.value = '';
+  render();
+}
+function render() {
+  renderNav();
+  $('v').innerHTML = S.q ? V.search() : V[S.tab]();
+}
+
+/* ===== Rich-text notes and tag labels ===== */
+S.ntag = '';
+const tagsOf = n => n.tags || (n.tag ? [n.tag] : []);
+const plain = h => new DOMParser().parseFromString(h || '', 'text/html').body.textContent || '';
+const bodyHTML = n => /<[a-z][\s\S]*>/i.test(n.content || '') ? n.content : esc(n.content || '').replace(/\n/g, '<br>');
+const focusTag = () => { const i = $('tg'); if (i) i.focus(); };
+
+function fmt(cmd, val) {
+  const el = $('ned'); if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, val ?? null);
+  editNote('content', el.innerHTML);
+}
+function insertCheck() { fmt('insertHTML', '<div>☐&nbsp;</div>'); }
+function insertLink() { const u = prompt('أدخل الرابط'); if (u) fmt('createLink', u); }
+function insertImg(input) {
+  const f = input.files[0]; if (!f) return;
+  if (f.size > 400 * 1024) { toast('الصورة كبيرة (الحد 400 KB)'); input.value = ''; return; }
+  const r = new FileReader();
+  r.onload = () => { fmt('insertImage', r.result); input.value = ''; };
+  r.readAsDataURL(f);
+}
+function addTag() {
+  const n = cur(), v = $('tg').value.trim();
+  if (!n || !v) return;
+  n.tags = [...new Set([...tagsOf(n), v])]; delete n.tag;
+  save(); render(); focusTag();
+}
+function quickTag(t) {
+  const n = cur(); if (!n) return;
+  n.tags = [...new Set([...tagsOf(n), t])]; delete n.tag;
+  save(); render();
+}
+function removeTag(i) {
+  const n = cur(); if (!n) return;
+  const t = tagsOf(n); t.splice(i, 1);
+  n.tags = t; delete n.tag;
+  save(); render(); focusTag();
+}
+
+V.notes = () => {
+  const n = cur();
+  const allTags = [...new Set(S.notes.flatMap(tagsOf))];
+  const list = S.notes.filter(x => !S.ntag || tagsOf(x).includes(S.ntag));
+  const tb = (cmd, label) => `<button onmousedown="event.preventDefault()" onclick="${cmd}" class="px-2 py-1 rounded-lg hover:bg-white text-slate-700 font-bold min-w-[2rem]">${label}</button>`;
+  const sep = '<span class="w-px h-5 bg-blue-200 mx-1"></span>';
+  return `
+  <div class="view grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-4 space-y-3">
+      <button onclick="newNote()" class="btn w-full py-3">+ ملاحظة جديدة</button>
+      <div class="flex flex-wrap gap-1.5 text-[11px]">
+        <button onclick="S.ntag='';render()" class="chip ${!S.ntag ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}">الكل</button>
+        ${allTags.map(t => `<button onclick="S.ntag='${esc(t)}';render()" class="chip ${S.ntag === t ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}">${esc(t)}</button>`).join('')}
+      </div>
+      <div class="space-y-3 max-h-[70vh] overflow-y-auto">
+        ${list.map(x => `
+          <div onclick="S.sel=${x.id};render()" class="card cursor-pointer ${x.id === S.sel ? '!border-2 !border-blue-400' : ''}">
+            <div class="text-[10px] text-slate-400">${esc(x.date || '')}</div>
+            <h4 class="font-bold text-sm text-blue-900 mt-1 truncate">${esc(x.title || 'بدون عنوان')}</h4>
+            <p class="text-[11px] text-slate-400 truncate">${esc(plain(x.content) || 'محتوى فارغ')}</p>
+            <div class="flex flex-wrap gap-1 mt-2">${tagsOf(x).map(t => `<span class="chip bg-blue-50 text-blue-600 text-[10px]">${esc(t)}</span>`).join('')}</div>
+          </div>`).join('') || '<p class="text-xs text-slate-400">لا توجد ملاحظات بهذا الوسم</p>'}
+      </div>
+    </div>
+    <div class="lg:col-span-8">
+      ${n ? `
+      <div class="card space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-400">ملاحظاتي ‹ ${esc(n.title)}</span>
+          <div class="flex gap-2"><button onclick="delNote()" class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold">حذف</button><button onclick="saveNote()" class="btn">حفظ</button></div>
+        </div>
+        <input value="${esc(n.title)}" oninput="editNote('title',this.value)" class="text-2xl font-black text-blue-900 w-full focus:outline-none" placeholder="عنوان الملاحظة...">
+        <div class="flex flex-wrap items-center gap-2 pb-3 border-b border-blue-50">
+          ${tagsOf(n).map((t, i) => `<span class="chip bg-blue-50 text-blue-700 flex items-center gap-1">${esc(t)}<button onclick="removeTag(${i})" class="text-blue-400 hover:text-red-500">${ic('x')}</button></span>`).join('')}
+          <input id="tg" placeholder="+ ملصق جديد" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag()}" class="text-xs bg-transparent focus:outline-none w-32 px-1">
+          ${allTags.filter(t => !tagsOf(n).includes(t)).map(t => `<button onclick="quickTag('${esc(t)}')" class="chip bg-slate-50 text-slate-500 text-[10px]">+ ${esc(t)}</button>`).join('')}
+        </div>
+        <div class="flex flex-wrap items-center gap-1 bg-blue-50/50 p-2 rounded-2xl border border-blue-100 text-xs">
+          ${tb("fmt('undo')", "↶")}${tb("fmt('redo')", "↷")}${sep}
+          <select onchange="fmt('formatBlock',this.value)" class="bg-white border border-blue-200 rounded-lg px-1 py-1">
+            <option value="p">نص عادي</option><option value="h1">عنوان 1</option><option value="h2">عنوان 2</option><option value="h3">عنوان 3</option>
+          </select>
+          <select onchange="fmt('fontName',this.value)" class="bg-white border border-blue-200 rounded-lg px-1 py-1">
+            <option>Tajawal</option><option>Arial</option><option>Georgia</option><option>Courier New</option>
+          </select>
+          <select onchange="fmt('fontSize',this.value)" class="bg-white border border-blue-200 rounded-lg px-1 py-1">
+            <option value="2">صغير</option><option value="3" selected>متوسط</option><option value="5">كبير</option><option value="7">ضخم</option>
+          </select>
+          ${sep}
+          ${tb("fmt('bold')", "<b>B</b>")}${tb("fmt('italic')", "<i>I</i>")}${tb("fmt('underline')", "<u>U</u>")}${tb("fmt('strikeThrough')", "<s>S</s>")}${tb("fmt('hiliteColor','#fde68a')", ic('hl'))}${sep}
+          ${tb("fmt('justifyRight')", "⇥")}${tb("fmt('justifyCenter')", "≡")}${tb("fmt('justifyLeft')", "⇤")}${sep}
+          ${tb("fmt('insertUnorderedList')", "•")}${tb("fmt('insertOrderedList')", "1.")}${tb("insertCheck()", ic('checksq'))}${sep}
+          ${tb("insertLink()", ic('link'))}${tb("$('imgf').click()", ic('image'))}${tb("fmt('removeFormat')", ic('erase'))}${sep}${tb("openDraw()", ic('pen') + ' خط اليد')}${tb("openRec()", ic('mic') + ' تسجيل')}${tb("openTeacher()", '<img src="assets/ai-teacher-robot.webp" alt="" class="inline h-5 w-5 object-contain align-middle"> المعلم الذكي')}
+          <input id="imgf" type="file" accept="image/*" class="hidden" onchange="insertImg(this)">
+        </div>
+        <div id="ned" contenteditable="true" dir="rtl" oninput="editNote('content',this.innerHTML)" class="ned min-h-[20rem] bg-white border border-blue-100 rounded-2xl p-5 text-sm leading-relaxed">${bodyHTML(n)}</div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-blue-900">المرفقات (${(n.attachments || []).length})</h4>
+            <label class="chip bg-blue-600 text-white cursor-pointer px-3 py-1.5">+ إرفاق ملف<input type="file" class="hidden" onchange="attachFile(this)"></label>
+          </div>
+          ${(n.attachments || []).map((a, i) => `
+            <div class="flex items-center justify-between gap-2 p-3 rounded-2xl bg-blue-50/40 border border-blue-100 text-xs">
+              <div class="flex items-center gap-2 min-w-0"><span class="text-lg">${extOf(a.name)[2]}</span><span class="font-bold text-blue-900 truncate">${esc(a.name)}</span></div>${a.type === 'audio' || (a.data || '').startsWith('data:audio') ? `<audio controls preload="metadata" src="${a.url || a.data}" class="w-full max-w-sm h-10 mt-2"></audio>` : ''}
+              <div class="flex items-center gap-3 text-slate-500 shrink-0"><span>${esc(a.size)}</span><button onclick="openAttach(${i})" class="btn">فتح</button><button onclick="removeAttach(${i})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div>
+            </div>`).join('')}
+        </div>
+        <div class="text-[11px] text-emerald-600 font-medium">${ic('check')} تم الحفظ محلياً</div>
+      </div>` : '<div class="card text-center text-sm text-slate-400">اختر ملاحظة أو أنشئ واحدة جديدة</div>'}
+    </div>
+  </div>`;
+};
+
+/* ===== Note attachments ===== */
+const ATT_MAX = 1024 * 1024;
+const saveNotesSafe = () => { try { localStorage.setItem('mn_notes', JSON.stringify(S.notes)); return true; } catch { return false; } };
+const dataToBlob = d => {
+  const mime = d.slice(5, d.indexOf(';')) || 'application/octet-stream';
+  const bin = atob(d.slice(d.indexOf(',') + 1));
+  const arr = new Uint8Array(bin.length);
+  for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  return new Blob([arr], {type: mime});
+};
+
+function attachFile(input) {
+  const n = cur(), f = input.files[0];
+  if (!n || !f) return;
+  if (f.size > ATT_MAX) { toast('الحد الأقصى لحجم المرفق 1 MB'); input.value = ''; return; }
+  const r = new FileReader();
+  r.onload = () => {
+    n.attachments = [...(n.attachments || []), {id: Date.now(), name: f.name, size: fmtSize(f.size), data: r.result}];
+    if (saveNotesSafe()) toast('تم إرفاق الملف');
+    else { n.attachments.pop(); save(); toast('مساحة التخزين المحلية ممتلئة، احذف بعض المرفقات'); }
+    render();
+  };
+  r.readAsDataURL(f);
+  input.value = '';
+}
+
+function openAttach(i) {
+  const a = (cur()?.attachments || [])[i];
+  if (!a) return;
+  const url = a.url || URL.createObjectURL(dataToBlob(a.data));
+  if (!window.open(url, '_blank')) toast('اسمح بالنوافذ المنبثقة لفتح الملف');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+function removeAttach(i) {
+  const n = cur(); if (!n || !confirm('حذف هذا المرفق؟')) return;
+  n.attachments.splice(i, 1);
+  save(); render();
+}
+
+/* ===== Generic modal ===== */
+let REC = null, PAD = null;
+function openModal(inner) {
+  $('modal').innerHTML = `<div onclick="closeModal()" class="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4"><div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">${inner}</div></div>`;
+}
+function closeModal() {
+  if (REC) { REC.mr.discard = true; REC.mr.stop(); REC = null; }
+  $('modal').innerHTML = '';
+}
+
+/* ===== Attach a blob to the current note ===== */
+function attachBlob(f) {
+  const n = cur(); if (!n) return;
+  if (f.size > ATT_MAX) { toast('الحد الأقصى 1 MB، سجّل مقطعاً أقصر'); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    n.attachments = [...(n.attachments || []), {id: Date.now(), name: f.name, size: fmtSize(f.size), data: r.result}];
+    if (saveNotesSafe()) toast('تم إرفاق التسجيل');
+    else { n.attachments.pop(); save(); toast('مساحة التخزين المحلية ممتلئة'); }
+    closeModal(); render();
+  };
+  r.readAsDataURL(f);
+}
+function attachRecording(file) { if (file) attachBlob(file); }
+
+/* ===== Voice recording ===== */
+function openRec() {
+  openModal(`<h3 class="font-black text-blue-900">${ic('mic')} تسجيل صوتي</h3>
+    <div class="text-center space-y-3">
+      <div id="rtime" class="text-3xl font-black text-blue-900">00:00</div>
+      <div id="rst" class="text-xs text-slate-400">اضغط لبدء التسجيل (حتى 90 ثانية)</div>
+      <button id="rbtn" onclick="toggleRec()" class="w-16 h-16 rounded-full bg-red-500 text-white text-xl shadow-lg">●</button>
+    </div>
+    <div class="border-t border-blue-50 pt-3 text-xs space-y-2">
+      <p class="text-slate-500">أو ارفع تسجيلاً جاهزاً:</p>
+      <input type="file" accept="audio/*" onchange="attachRecording(this.files[0])" class="text-xs">
+    </div>
+    <div class="flex justify-end"><button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button></div>`);
+}
+async function toggleRec() {
+  if (REC) { REC.mr.stop(); return; }
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('التسجيل غير مدعوم في هذا المتصفح'); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    const mr = new MediaRecorder(stream);
+    const chunks = [], start = Date.now();
+    const timer = setInterval(() => {
+      const s = Math.floor((Date.now() - start) / 1000);
+      if ($('rtime')) $('rtime').textContent = `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+      if (s >= 90 && REC) REC.mr.stop();
+    }, 500);
+    mr.ondataavailable = e => chunks.push(e.data);
+    mr.onstop = () => {
+      clearInterval(timer);
+      stream.getTracks().forEach(t => t.stop());
+      if (mr.discard) return;
+      const blob = new Blob(chunks, {type: mr.mimeType || 'audio/webm'});
+      REC = null;
+      attachBlob(new File([blob], `تسجيل ${new Date().toLocaleTimeString('ar-EG')}.webm`, {type: blob.type}));
+    };
+    mr.start();
+    REC = {mr};
+    $('rbtn').textContent = '■';
+    $('rst').textContent = 'جارٍ التسجيل...';
+  } catch { toast('لم يُسمح باستخدام الميكروفون'); }
+}
+
+/* ===== Handwriting pad ===== */
+function openDraw() {
+  openModal(`<h3 class="font-black text-blue-900">${ic('pen')} الكتابة بخط اليد</h3>
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <input type="color" id="pc" value="#1e3a8a" class="w-8 h-8 rounded">
+      <select id="ps" class="bg-white border border-blue-200 rounded-lg px-2 py-1"><option value="2">رفيع</option><option value="4" selected>متوسط</option><option value="8">عريض</option></select>
+      <button onclick="undoPad()" class="px-3 py-1 rounded-lg bg-slate-100 font-bold">تراجع</button>
+      <button onclick="clearPad()" class="px-3 py-1 rounded-lg bg-slate-100 font-bold">مسح</button>
+    </div>
+    <canvas id="pad" width="800" height="400" class="w-full bg-white border border-blue-100 rounded-2xl touch-none cursor-crosshair"></canvas>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إلغاء</button>
+      <button onclick="insertPad()" class="btn">إدراج في الملاحظة</button>
+    </div>`);
+  initPad();
+}
+function initPad() {
+  const c = $('pad'), ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  PAD = {c, ctx, snaps: [], drawing: false, last: null};
+  const pos = e => { const r = c.getBoundingClientRect(); return {x: (e.clientX - r.left) * c.width / r.width, y: (e.clientY - r.top) * c.height / r.height}; };
+  c.onpointerdown = e => {
+    c.setPointerCapture(e.pointerId);
+    PAD.snaps.push(ctx.getImageData(0, 0, c.width, c.height));
+    if (PAD.snaps.length > 30) PAD.snaps.shift();
+    PAD.drawing = true; PAD.last = pos(e);
+  };
+  c.onpointermove = e => {
+    if (!PAD.drawing) return;
+    const p = pos(e);
+    ctx.strokeStyle = $('pc').value; ctx.lineWidth = +$('ps').value;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(PAD.last.x, PAD.last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    PAD.last = p;
+  };
+  c.onpointerup = c.onpointercancel = () => { PAD.drawing = false; };
+}
+function undoPad() { if (PAD && PAD.snaps.length) PAD.ctx.putImageData(PAD.snaps.pop(), 0, 0); }
+function clearPad() {
+  if (!PAD) return;
+  PAD.snaps.push(PAD.ctx.getImageData(0, 0, PAD.c.width, PAD.c.height));
+  PAD.ctx.fillStyle = '#fff'; PAD.ctx.fillRect(0, 0, PAD.c.width, PAD.c.height);
+}
+function insertPad() {
+  if (!PAD) return;
+  const data = PAD.c.toDataURL('image/png');
+  if (data.length > 700000) { toast('الرسم كبير، جرّب رسماً أبسط'); return; }
+  closeModal();
+  if (S.tab !== 'notes') go('notes');
+  if (!cur()) { toast('أنشئ ملاحظة أولاً'); return; }
+  fmt('insertImage', data);
+  toast('تم إدراج الرسم');
+}
+
+/* ===== AI teacher (local analysis, no external service) ===== */
+const STOPWORDS = new Set(['من','في','على','إلى','الى','عن','أن','ان','التي','الذي','هذا','هذه','مع','كان','كانت','هو','هي','ما','لا','أو','او','و','ثم','قد','كل','بعد','قبل','بين','أي','the','and','of','to','is','are','was','for','with']);
+function openTeacher() {
+  if (!cur()) { toast('افتح ملاحظة أولاً'); return; }
+  openModal(`<div class="flex items-center gap-3">
+      <img src="assets/ai-teacher-robot.webp" alt="المعلم الذكي" class="h-14 w-14 object-contain shrink-0 rounded-2xl bg-blue-50">
+      <div><h3 class="font-black text-blue-900">المعلم الذكي</h3><p class="text-[11px] text-slate-400">يحلل ملاحظتك ويساعدك على المراجعة</p></div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 text-xs">
+      <button onclick="teach('sum')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">تلخيص</button>
+      <button onclick="teach('key')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">أهم المصطلحات</button>
+      <button onclick="teach('quiz')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">أسئلة مراجعة</button>
+    </div>
+    <div id="tout" class="text-sm leading-relaxed bg-blue-50/40 border border-blue-100 rounded-2xl p-4 min-h-[6rem] text-slate-700">اختر نوع المساعدة</div>
+    <p class="text-[10px] text-slate-400">هذا المعلم يحلل النص محلياً بطريقة بسيطة، وليس نموذج ذكاء اصطناعي. لإجابات أعمق يلزم ربطه بخدمة ذكاء اصطناعي عبر خادم.</p>`);
+}
+function teach(mode) {
+  const n = cur(); if (!n) return;
+  const text = plain(n.content).trim();
+  if (text.length < 20) { $('tout').textContent = 'الملاحظة قصيرة جداً، أضف بعض المحتوى أولاً.'; return; }
+  const sents = text.split(/[.!؟?\n]+/).map(s => s.trim()).filter(s => s.length > 12);
+  const wordsOf = s => (s.toLowerCase().match(/[\u0600-\u06FFa-z]{3,}/g) || []).filter(w => !STOPWORDS.has(w));
+  const freq = {};
+  wordsOf(text).forEach(w => freq[w] = (freq[w] || 0) + 1);
+  const topW = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 6).map(e => e[0]);
+  const score = s => { const ws = wordsOf(s); return ws.reduce((t, w) => t + (freq[w] || 0), 0) / Math.max(ws.length, 1); };
+  const best = sents.map((s, i) => ({s, i, v: score(s)})).sort((a, b) => b.v - a.v).slice(0, 3).sort((a, b) => a.i - b.i).map(x => x.s);
+  let html = '';
+  if (mode === 'sum') html = best.map(s => `• ${esc(s)}.`).join('<br>');
+  else if (mode === 'key') html = topW.map(w => `<span class="chip bg-blue-100 text-blue-700 mr-1 mb-1 inline-block">${esc(w)}</span>`).join('');
+  else html = sents.slice(0, 4).map((s, i) => `<div class="mb-2"><b>${i + 1}.</b> ما المقصود بما ورد في: «${esc(s.split(' ').slice(0, 8).join(' '))}...»؟</div>`).join('');
+  $('tout').innerHTML = html || 'لم أجد ما يكفي للتحليل.';
+}
+
+/* ===== Built-in lecture note (added once per browser) ===== */
+if (!load('mn_lecture_seeded', false)) {
+  S.notes.unshift({
+    id: 900001,
+    title: 'محاضرة: الجهاز العصبي المركزي - الصرع',
+    content: 'تسجيل محاضرة عن الجهاز العصبي المركزي والصرع (نحو 57 دقيقة). يمكنك الاستماع إليه من المرفق أدناه.',
+    tags: ['طب', 'محاضرة'],
+    date: '2025/04/21',
+    attachments: [{id: 900002, name: 'محاضرة الصرع.mp4', size: '6.9 MB', type: 'audio', url: 'assets/cns-epilepsy-lecture.mp4'}]
+  });
+  S.sel = 900001;
+  save();
+  try { localStorage.setItem('mn_lecture_seeded', JSON.stringify(true)); } catch {}
+}
+
+/* ===== Illustrations at the top of each screen ===== */
+const BANNERS = {
+  home: 'assets/home-robot.webp',
+  calendar: 'assets/calendar.webp',
+  tasks: 'assets/tasks.webp',
+  files: 'assets/files.webp',
+  library: 'assets/library.webp',
+  settings: 'assets/settings.webp'
+};
+function render() {
+  renderNav();
+  $('v').innerHTML = S.q ? V.search() : V[S.tab]();
+  // Put the illustration inside the first welcome/header card of the screen
+  const src = !S.q && BANNERS[S.tab];
+  const host = src && $('v').querySelector('.bg-gradient-to-l, .card');
+  if (host) host.insertAdjacentHTML('afterbegin', `<img src="${src}" alt="" class="float-left h-24 w-24 md:h-28 md:w-28 object-contain rounded-2xl bg-white/40 ml-3 mb-2 shrink-0">`);
+}
+
+/* ===== Medical study assistant (Claude-powered when available) ===== */
+const MED_RULES = 'أنت مساعد دراسي متخصص في الطب، تشرح للطلاب باللغة العربية بدقة ووضوح، وتعتمد على المعرفة الطبية المعتمدة في المراجع الدراسية. إذا كانت هناك درجة من عدم اليقين أو خلاف علمي فاذكر ذلك صراحةً. لا تقدم تشخيصاً ولا خطة علاجية لأي حالة فردية، فالمعلومات تعليمية فقط. إذا ذكر المستخدم أعراضاً تستدعي الطوارئ (كفقدان الوعي، أو نوبة صرع مستمرة، أو ضيق تنفس شديد، أو ألم صدر) فانصحه فوراً بالتوجه إلى أقرب طوارئ أو الاتصال بالإسعاف.';
+const TASKS = {
+  sum: () => 'لخّص الملاحظة التالية في نقاط مختصرة مرتبة، وأبرز المصطلحات الطبية المهمة.',
+  explain: () => 'اشرح الملاحظة التالية شرحاً مبسطاً لطالب طب، مع مثال توضيحي عند الحاجة، وأشر إلى النقاط التي يكثر فيها الخلط.',
+  quiz: () => 'أنشئ 5 أسئلة امتحان متنوعة من الملاحظة التالية (اختيار من متعدد مع الإجابة الصحيحة وشرح قصير لكل إجابة).',
+  plan: () => 'نظّم جدولاً دراسياً للأسبوع القادم بناءً على المهام والمواعيد التالية. وزّع المراجعة حسب الأولوية والمواعيد، وحدد يوماً ووقتاً مقترحاً لكل مهمة مهمة، واذكر السبب باختصار.'
+};
+let TEACH_AI = false;
+
+async function hasAI() {
+  try { return !!(await window.claude?.use?.('sample')); } catch { return false; }
+}
+const noteText = () => plain(cur()?.content).trim();
+function scheduleText() {
+  const tasks = S.tasks.map(t => `- ${t.text} (الأولوية: ${t.pri}, ${t.done ? 'مكتملة' : 'غير مكتملة'}${t.when ? '، ' + t.when : ''})`).join('\n');
+  const events = S.events.slice().sort((a, b) => a.date.localeCompare(b.date)).slice(0, 30).map(e => `- ${e.date} ${e.time}: ${e.title}`).join('\n');
+  return `المهام:\n${tasks || 'لا توجد مهام'}\n\nالمواعيد:\n${events || 'لا توجد مواعيد'}`;
+}
+
+async function askAI(kind, custom) {
+  const out = $('tout');
+  const sample = await window.claude?.use?.('sample').catch(() => null);
+  if (!sample) { out.textContent = 'الذكاء الاصطناعي غير متاح في هذه النسخة.'; return; }
+  const task = custom || TASKS[kind]();
+  const data = kind === 'plan' ? scheduleText() : noteText();
+  if (!custom && kind !== 'plan' && !data) { out.textContent = 'افتح ملاحظة تحتوي على نص أولاً.'; return; }
+  out.textContent = 'جارٍ التفكير...';
+  try {
+    const res = await sample(`${MED_RULES}\n\n${task}${data ? '\n\nالمادة:\n' + data : ''}`, {
+      onText: ({text}) => { out.textContent = text; }
+    });
+    out.textContent = res.text;
+  } catch (e) {
+    out.textContent = e?.code === 'rate_limited' ? 'وصلت إلى حد الطلبات، حاول بعد قليل.' : 'تعذّر الحصول على رد، حاول مرة أخرى.';
+  }
+}
+
+function act(kind) {
+  if (TEACH_AI) return askAI(kind);
+  if (kind === 'sum' || kind === 'quiz') return teach(kind === 'sum' ? 'sum' : 'quiz');
+  $('tout').textContent = 'هذه الخدمة تحتاج إلى الذكاء الاصطناعي.';
+}
+function askCustom() {
+  const q = $('tq').value.trim();
+  if (!q) return;
+  if (!TEACH_AI) { $('tout').textContent = 'الأسئلة الحرة تحتاج إلى الذكاء الاصطناعي.'; return; }
+  askAI('custom', q + (noteText() ? '\n\nسياق: الملاحظة الحالية مرفقة أدناه.' : ''));
+}
+
+async function openTeacher() {
+  if (!cur()) { toast('افتح ملاحظة أولاً'); return; }
+  TEACH_AI = await hasAI();
+  const badge = TEACH_AI
+    ? '<span class="chip bg-emerald-50 text-emerald-700">متصل بـ Claude</span>'
+    : '<span class="chip bg-amber-50 text-amber-700">وضع محلي (بدون ذكاء اصطناعي)</span>';
+  openModal(`<div class="flex items-center gap-3">
+      <img src="assets/ai-teacher-robot.webp" alt="المعلم الذكي" class="h-14 w-14 object-contain shrink-0 rounded-2xl bg-blue-50">
+      <div><h3 class="font-black text-blue-900">المعلم الذكي (طب)</h3>${badge}</div>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+      <button onclick="act('sum')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">تلخيص</button>
+      <button onclick="act('explain')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">شرح مبسط</button>
+      <button onclick="act('quiz')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">امتحن نفسي</button>
+      <button onclick="act('plan')" class="p-3 rounded-2xl bg-blue-50 text-blue-700 font-bold">نظّم جدولي</button>
+    </div>
+    <div class="flex gap-2">
+      <input id="tq" placeholder="اسأل المعلم سؤالاً عن الملاحظة..." onkeydown="if(event.key==='Enter')askCustom()" class="flex-1 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+      <button onclick="askCustom()" class="btn">إرسال</button>
+    </div>
+    <div id="tout" class="whitespace-pre-wrap text-sm leading-relaxed bg-blue-50/40 border border-blue-100 rounded-2xl p-4 min-h-[6rem] max-h-[40vh] overflow-y-auto text-slate-700">اختر ما تريد أن يساعدك فيه</div>
+    <p class="text-[10px] text-slate-400">المعلم للمساعدة الدراسية فقط ولا يغني عن الطبيب أو المراجع المعتمدة، ولا يقدم تشخيصاً أو علاجاً لأي حالة. عند أعراض طارئة اتصل بالإسعاف فوراً.</p>`);
+}
+
+/* ===== Productivity tools ===== */
+const TOOL_UI = {
+  'مخطط اليوم': () => {
+    const d = new Date(), key = ydm(d.getFullYear(), d.getMonth(), d.getDate());
+    const ev = S.events.filter(e => e.date === key);
+    const tk = S.tasks.filter(t => !t.done);
+    openModal(`<h3 class="font-black text-blue-900">${ic('calendar')} مخطط اليوم</h3>
+      <p class="text-xs text-slate-400">${d.toLocaleDateString('ar-EG', {weekday: 'long', day: 'numeric', month: 'long'})}</p>
+      <div class="space-y-2 text-xs">
+        <div class="font-bold text-blue-900">المواعيد</div>
+        ${ev.map(e => `<div class="p-2.5 rounded-xl bg-blue-50/50 flex justify-between"><span>${esc(e.title)}</span><span class="text-slate-400">${esc(e.time)}</span></div>`).join('') || '<p class="text-slate-400">لا توجد مواعيد اليوم</p>'}
+        <div class="font-bold text-blue-900 pt-2">المهام المعلّقة</div>
+        ${tk.map(t => `<div class="p-2.5 rounded-xl bg-blue-50/50 flex justify-between"><span>${esc(t.text)}</span><span class="chip ${PRI[t.pri]}">${t.pri}</span></div>`).join('') || '<p class="text-slate-400">لا توجد مهام معلّقة</p>'}
+      </div>
+      <div class="flex justify-end"><button onclick="closeModal()" class="btn">تم</button></div>`);
+  },
+
+  'تصميم الملاحظات': () => {
+    const n = cur();
+    if (!n) { toast('افتح ملاحظة أولاً'); return; }
+    const C = ['#ffffff', '#fef9c3', '#dcfce7', '#dbeafe', '#fce7f3', '#ede9fe'];
+    openModal(`<h3 class="font-black text-blue-900">${ic('palette')} تصميم الملاحظة</h3>
+      <p class="text-xs text-slate-400">اختر لون خلفية محرر "${esc(n.title)}"</p>
+      <div class="flex gap-3 flex-wrap">${C.map(c => `<button onclick="setNoteColor('${c}')" class="w-10 h-10 rounded-full border-2 shadow ${(n.color || '#ffffff') === c ? 'border-blue-600' : 'border-white'}" style="background:${c}"></button>`).join('')}</div>
+      <div class="flex justify-end"><button onclick="closeModal()" class="btn">تم</button></div>`);
+  },
+
+  'محول الملفات': () => openModal(`<h3 class="font-black text-blue-900">${ic('repeat')} محول الصور</h3>
+    <p class="text-xs text-slate-400">حوّل صورة إلى PNG أو JPG أو WebP داخل المتصفح.</p>
+    <input type="file" accept="image/*" id="cvf" class="text-xs w-full">
+    <div class="flex gap-2 items-center text-xs">
+      <select id="cvt" class="bg-white border border-blue-200 rounded-lg px-2 py-1"><option value="image/png">PNG</option><option value="image/jpeg">JPG</option><option value="image/webp">WebP</option></select>
+      <button onclick="convertImg()" class="btn">تحويل</button>
+    </div>
+    <div id="cvo" class="text-xs text-slate-500 space-y-2"></div>`),
+
+  'حاسبة الوقت': () => openModal(`<h3 class="font-black text-blue-900">${ic('timer')} حاسبة الوقت</h3>
+    <div class="space-y-3 text-xs">
+      <div class="flex gap-2 items-center"><span class="w-12">من</span><input id="tc1" type="time" value="08:00" class="flex-1 border border-blue-200 rounded-xl px-2 py-1.5"></div>
+      <div class="flex gap-2 items-center"><span class="w-12">إلى</span><input id="tc2" type="time" value="12:30" class="flex-1 border border-blue-200 rounded-xl px-2 py-1.5"></div>
+      <button onclick="calcTime()" class="btn w-full">احسب المدة</button>
+      <div id="tcr" class="font-bold text-blue-900 text-center min-h-[1.5rem]"></div>
+      <div class="border-t border-blue-50 pt-3 flex flex-wrap gap-2 items-center">
+        <span>أضف</span><input id="tc3" type="number" value="45" min="0" class="w-20 border border-blue-200 rounded-xl px-2 py-1.5"><span>دقيقة إلى وقت البداية</span>
+        <button onclick="addTime()" class="btn">أضف</button>
+      </div>
+    </div>`),
+
+  'الترجمة السريعة': () => openModal(`<h3 class="font-black text-blue-900">${ic('globe')} الترجمة السريعة</h3>
+    <textarea id="trin" rows="4" class="w-full border border-blue-200 rounded-xl p-3 text-sm focus:outline-none" placeholder="اكتب النص للترجمة..."></textarea>
+    <div class="flex gap-2 items-center text-xs">
+      <select id="trl" class="bg-white border border-blue-200 rounded-lg px-2 py-1"><option>الإنجليزية</option><option>العربية</option><option>الفرنسية</option></select>
+      <button onclick="runTranslate()" class="btn">ترجم</button>
+    </div>
+    <div id="tro" class="whitespace-pre-wrap text-sm bg-blue-50/40 border border-blue-100 rounded-2xl p-3 min-h-[4rem]"></div>
+    <p class="text-[10px] text-slate-400">الترجمة عبر Claude وتحتاج إلى توفر الذكاء الاصطناعي في هذه النسخة.</p>`),
+
+  'قارئ المستندات': () => openModal(`<h3 class="font-black text-blue-900">${ic('fileTxt')} قارئ المستندات</h3>
+    <p class="text-xs text-slate-400">يقرأ ملفات النص: TXT وMD وHTML وCSV وJSON. ملفات Word وPDF تحتاج إلى مكتبة إضافية.</p>
+    <input type="file" accept=".txt,.md,.html,.csv,.json,text/*" onchange="readDoc(this.files[0])" class="text-xs w-full">
+    <pre id="rdo" class="whitespace-pre-wrap text-xs bg-blue-50/40 border border-blue-100 rounded-2xl p-3 max-h-[40vh] overflow-y-auto"></pre>`),
+
+  'الذكاء الاصطناعي': () => openTeacher(),
+
+  'قائمة المهام الذكية': () => {
+    const rank = {'عالية': 0, 'متوسطة': 1, 'منخفضة': 2};
+    const pend = S.tasks.filter(t => !t.done).sort((a, b) => (rank[a.pri] ?? 3) - (rank[b.pri] ?? 3));
+    openModal(`<h3 class="font-black text-blue-900">${ic('checkc')} قائمة المهام الذكية</h3>
+      <div class="p-4 rounded-2xl bg-blue-50 text-xs">${pend.length ? `المهمة التالية المقترحة: <b class="text-blue-900">${esc(pend[0].text)}</b> (${pend[0].pri})` : 'لا توجد مهام معلّقة، أحسنت!'}</div>
+      <div class="space-y-2 text-xs max-h-[40vh] overflow-y-auto">${pend.map(t => `<div class="flex justify-between p-2.5 rounded-xl bg-blue-50/40"><span>${esc(t.text)}</span><span class="chip ${PRI[t.pri]}">${t.pri}</span></div>`).join('')}</div>
+      <div class="flex justify-between">
+        <button onclick="clearDone()" class="px-4 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold">حذف المكتملة</button>
+        <button onclick="closeModal()" class="btn">تم</button>
+      </div>`);
+  }
+};
+
+function openTool(name) {
+  const f = TOOL_UI[name];
+  if (f) f(); else toast('هذه الأداة غير متاحة');
+}
+
+function setNoteColor(c) {
+  const n = cur(); if (!n) return;
+  n.color = c; save();
+  toast('تم تغيير لون الملاحظة');
+  if (S.tab === 'notes') render();
+}
+function calcTime() {
+  const toMin = v => { const [h, m] = v.split(':').map(Number); return h * 60 + m; };
+  let d = toMin($('tc2').value) - toMin($('tc1').value);
+  if (d < 0) d += 1440;
+  $('tcr').textContent = `المدة: ${Math.floor(d / 60)} ساعة و ${d % 60} دقيقة`;
+}
+function addTime() {
+  const [h, m] = $('tc1').value.split(':').map(Number);
+  const total = (h * 60 + m + (+$('tc3').value || 0)) % 1440;
+  const pad = x => String(x).padStart(2, '0');
+  $('tcr').textContent = `الوقت الناتج: ${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+}
+function convertImg() {
+  const f = $('cvf').files[0];
+  if (!f) { toast('اختر صورة أولاً'); return; }
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0);
+    c.toBlob(b => {
+      const u = URL.createObjectURL(b);
+      $('cvo').innerHTML = `<div class="flex items-center gap-2"><button onclick="window.open('${u}','_blank')" class="btn">فتح الصورة المحوّلة للحفظ</button><span>${fmtSize(b.size)}</span></div>`;
+    }, $('cvt').value, 0.92);
+  };
+  img.src = URL.createObjectURL(f);
+}
+async function runTranslate() {
+  const text = $('trin').value.trim();
+  if (!text) return;
+  const out = $('tro');
+  const sample = await window.claude?.use?.('sample').catch(() => null);
+  if (!sample) { out.textContent = 'الترجمة تحتاج إلى الذكاء الاصطناعي، وهو غير متاح في هذه النسخة.'; return; }
+  out.textContent = 'جارٍ الترجمة...';
+  try {
+    const r = await sample(`ترجم النص التالي إلى ${$('trl').value}. أعد الترجمة فقط دون أي شرح.\n\n${text}`, {
+      onText: ({text: t}) => { out.textContent = t; }
+    });
+    out.textContent = r.text;
+  } catch { out.textContent = 'تعذّرت الترجمة، حاول مرة أخرى.'; }
+}
+function readDoc(f) {
+  if (!f) return;
+  if (f.size > 2 * 1024 * 1024) { toast('الملف كبير (الحد 2 MB)'); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    let t = r.result;
+    if (/\.html?$/i.test(f.name)) t = plain(t);
+    $('rdo').textContent = t.slice(0, 50000);
+  };
+  r.readAsText(f);
+}
+function clearDone() {
+  S.tasks = S.tasks.filter(t => !t.done);
+  save(); closeModal(); render();
+  toast('تم حذف المهام المكتملة');
+}
+
+/* Re-declared so note colors apply to the editor */
+function render() {
+  renderNav();
+  $('v').innerHTML = S.q ? V.search() : V[S.tab]();
+  const src = !S.q && BANNERS[S.tab];
+  $('v').insertAdjacentHTML('beforeend', `<div class="mn-credit">© 2026 جميع الحقوق محفوظة<br><a href="mailto:tecnexus555@gmail.com">tecnexus555@gmail.com</a></div>`);
+  const host = src && $('v').querySelector('.bg-gradient-to-l, .card');
+  if (host) host.insertAdjacentHTML('afterbegin', `<img src="${src}" alt="" class="float-left h-24 w-24 md:h-28 md:w-28 object-contain rounded-2xl bg-white/40 ml-3 mb-2 shrink-0">`);
+  const ned = $('ned');
+  if (ned && cur()?.color) ned.style.background = cur().color;
+}
+
+/* ===== Voice input and spoken answers for the teacher ===== */
+let SPEAK_ON = false;
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function speak(text) {
+  if (!SPEAK_ON || !window.speechSynthesis || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.slice(0, 1500));
+  u.lang = 'ar-SA';
+  speechSynthesis.speak(u);
+}
+function toggleSpeak() {
+  SPEAK_ON = !SPEAK_ON;
+  const b = $('spk');
+  if (b) b.innerHTML = SPEAK_ON ? ic('vol') + ' تشغيل' : ic('mute') + ' صامت';
+  if (!SPEAK_ON && window.speechSynthesis) speechSynthesis.cancel();
+}
+function voiceIn() {
+  if (!SpeechRec) { toast('الإدخال الصوتي غير مدعوم في هذا المتصفح'); return; }
+  const rec = new SpeechRec();
+  rec.lang = 'ar-SA';
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  rec.onresult = e => { $('tq').value = e.results[0][0].transcript; askCustom(); };
+  rec.onerror = () => toast('تعذّر الاستماع، تحقق من إذن الميكروفون');
+  try { rec.start(); toast('تحدّث الآن...'); } catch { toast('تعذّر بدء الاستماع'); }
+}
+function addVoiceControls() {
+  const q = $('tq'); if (!q) return;
+  q.parentElement.insertAdjacentHTML('afterbegin', '<button onclick="voiceIn()" title="تحدّث" class="px-3 rounded-xl bg-blue-50 text-blue-700 font-bold">' + ic('mic') + '</button>');
+  q.parentElement.insertAdjacentHTML('beforeend', `<button id="spk" onclick="toggleSpeak()" class="px-3 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold">${SPEAK_ON ? ic('vol') + ' تشغيل' : ic('mute') + ' صامت'}</button>`);
+}
+
+const _openTeacher = openTeacher;
+openTeacher = async function () { await _openTeacher(); addVoiceControls(); };
+const _askAI = askAI;
+askAI = async function (kind, custom) { await _askAI(kind, custom); speak($('tout')?.textContent); };
+
+/* ===== In-app previews (no new tabs or pop-ups) ===== */
+function openPreview(a) {
+  const d = a.data || '';
+  let mime = d.startsWith('data:') ? d.slice(5, d.indexOf(';')) : '';
+  if (!mime && a.type === 'audio') mime = 'audio/mp4';
+  const src = a.url || URL.createObjectURL(dataToBlob(d));
+  let body;
+  if (mime.startsWith('image/')) body = `<img src="${src}" alt="" class="max-h-[60vh] w-auto mx-auto rounded-2xl">`;
+  else if (mime.startsWith('audio/')) body = `<audio controls src="${src}" class="w-full"></audio>`;
+  else if (mime.startsWith('video/')) body = `<video controls src="${src}" class="w-full max-h-[60vh] rounded-2xl"></video>`;
+  else if (mime === 'application/pdf' || mime.startsWith('text/')) body = `<iframe src="${src}" class="w-full h-[60vh] rounded-2xl border border-blue-100"></iframe>`;
+  else body = '<p class="text-xs text-slate-500">لا يمكن عرض هذا النوع داخل التطبيق.</p>';
+  openModal(`<h3 class="font-black text-blue-900 break-all">${esc(a.name)}</h3>${body}
+    <div class="flex justify-end"><button onclick="closeModal()" class="btn">إغلاق</button></div>`);
+}
+function openAttach(i) {
+  const a = (cur()?.attachments || [])[i];
+  if (a) openPreview(a);
+}
+function convertImg() {
+  const f = $('cvf').files[0];
+  if (!f) { toast('اختر صورة أولاً'); return; }
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0);
+    c.toBlob(b => {
+      const u = URL.createObjectURL(b);
+      $('cvo').innerHTML = `<img src="${u}" alt="" class="max-h-64 mx-auto rounded-2xl border border-blue-100">
+        <p class="text-center">الحجم: ${fmtSize(b.size)}. اضغط مطولاً على الصورة (أو بالزر الأيمن) واختر "حفظ الصورة".</p>`;
+    }, $('cvt').value, 0.92);
+  };
+  img.src = URL.createObjectURL(f);
+}
+
+/* ===== Medical additions (added on top of the existing app) ===== */
+COL.teal = 'bg-teal-50 text-teal-700';
+COL.indigo = 'bg-indigo-50 text-indigo-700';
+
+const SPECIALTIES = ['باطنة', 'جراحة', 'أطفال', 'نساء', 'طوارئ', 'قلب', 'أعصاب', 'تشريح', 'صيدلة'];
+const TEMPLATES = {
+  lec: '<h2>عنوان المحاضرة</h2><p><b>الأهداف:</b></p><ul><li></li></ul><p><b>النقاط الرئيسية:</b></p><ul><li></li></ul><p><b>ملخص:</b></p><p></p><p><b>أسئلة للمراجعة:</b></p><ol><li></li></ol>',
+  soap: '<h3>حالة سريرية تعليمية</h3><p><b>S (الشكوى والتاريخ):</b></p><p></p><p><b>O (الفحص والنتائج):</b></p><p></p><p><b>A (التشخيص التفريقي):</b></p><p></p><p><b>P (نقاط التعلم):</b></p><p></p><p><i>حالة تعليمية فقط، لا تُستخدم لتشخيص مرضى فعليين.</i></p>',
+  drug: '<h3>اسم الدواء</h3><p><b>الفئة الدوائية:</b></p><p><b>دواعي الاستعمال:</b></p><p><b>آلية التأثير:</b></p><p><b>الآثار الجانبية الأهم:</b></p><p><b>موانع الاستعمال والتداخلات:</b></p><p><b>الجرعات:</b> راجعها من المرجع المعتمد وليس من هذه الملاحظة.</p>'
+};
+
+function insertTemplate(k) {
+  if (!k || !TEMPLATES[k]) return;
+  if (!$('ned')) { toast('افتح ملاحظة أولاً'); return; }
+  fmt('insertHTML', TEMPLATES[k]);
+  toast('تم إدراج القالب');
+}
+
+function openCalc(k) {
+  const field = (id, ph, extra = '') => `<input id="${id}" type="number" ${extra} placeholder="${ph}" class="border border-blue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">`;
+  if (k === 'bmi') {
+    openModal(`<h3 class="font-black text-blue-900">مؤشر كتلة الجسم</h3>
+      <div class="grid grid-cols-2 gap-2">${field('cw', 'الوزن (كغ)')}${field('ch', 'الطول (سم)')}</div>
+      <button onclick="calcBMI()" class="btn w-full">احسب</button>
+      <div id="cres" class="whitespace-pre-wrap text-sm font-bold text-blue-900 min-h-[2rem]"></div>
+      <p class="text-[10px] text-slate-400">تقدير تعليمي. يُفسَّر المؤشر مع الفحص السريري وليس وحده.</p>`);
+  } else {
+    openModal(`<h3 class="font-black text-blue-900">تقدير وظائف الكلى (Cockcroft-Gault)</h3>
+      <div class="grid grid-cols-2 gap-2">${field('ca', 'العمر')}${field('cwt', 'الوزن (كغ)')}${field('ccr', 'الكرياتينين (mg/dL)', 'step="0.1"')}
+        <select id="cs" class="border border-blue-200 rounded-xl px-3 py-2 text-xs"><option value="m">ذكر</option><option value="f">أنثى</option></select></div>
+      <button onclick="calcCrCl()" class="btn w-full">احسب</button>
+      <div id="cres" class="whitespace-pre-wrap text-sm font-bold text-blue-900 min-h-[2rem]"></div>
+      <p class="text-[10px] text-slate-400">تقدير تقريبي للتعليم. لا يُستخدم وحده لتعديل الجرعات، ويختلف في المرضى كبار السن والسمنة وعدم استقرار الوظيفة.</p>`);
+  }
+}
+function calcBMI() {
+  const w = +$('cw').value, h = +$('ch').value / 100;
+  if (!w || !h) { $('cres').textContent = 'أدخل الوزن والطول بالأرقام.'; return; }
+  const b = w / (h * h);
+  const cat = b < 18.5 ? 'نقص الوزن' : b < 25 ? 'طبيعي' : b < 30 ? 'زيادة الوزن' : 'سمنة';
+  $('cres').textContent = `المؤشر: ${b.toFixed(1)} كغ/م² (${cat})`;
+}
+function calcCrCl() {
+  const age = +$('ca').value, wt = +$('cwt').value, cr = +$('ccr').value;
+  if (!age || !wt || !cr) { $('cres').textContent = 'أدخل العمر والوزن والكرياتينين بالأرقام.'; return; }
+  let v = ((140 - age) * wt) / (72 * cr);
+  if ($('cs').value === 'f') v *= 0.85;
+  $('cres').textContent = `التقدير: ≈ ${v.toFixed(0)} مل/دقيقة`;
+}
+
+const _renderBase = render;
+render = function () {
+  _renderBase();
+  if (S.tab === 'notes' && cur() && $('ned') && !$('xtra')) {
+    $('ned').insertAdjacentHTML('beforebegin', `<div id="xtra" class="flex flex-wrap items-center gap-2 text-xs">
+      <select onchange="insertTemplate(this.value);this.value=''" class="bg-white border border-blue-200 rounded-lg px-2 py-1">
+        <option value="">+ قالب طبي</option><option value="lec">قالب محاضرة</option><option value="soap">حالة سريرية (SOAP)</option><option value="drug">ملخص دواء</option>
+      </select>
+      <span class="text-slate-400">التخصص:</span>
+      ${SPECIALTIES.map(s => `<button onclick="quickTag('${s}')" class="chip bg-slate-50 text-slate-600 text-[10px]">${s}</button>`).join('')}
+    </div>`);
+  }
+  if (S.tab === 'calendar' && $('ev-c') && !$('ev-c').querySelector('[value="teal"]')) {
+    $('ev-c').insertAdjacentHTML('beforeend', '<option value="teal">مناوبة</option><option value="indigo">مؤتمر</option>');
+  }
+  if (S.tab === 'more' && !$('medcalc')) {
+    $('v').insertAdjacentHTML('beforeend', `<div id="medcalc" class="view mt-6"><div class="card space-y-3">
+      <h3 class="font-extrabold text-sm text-blue-900">${ic('steth')} الحاسبات الطبية</h3>
+      <p class="text-xs text-slate-400">أدوات تعليمية مساعدة. تحقق دائماً من الحساب وراجع الإرشادات المعتمدة.</p>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <button onclick="openCalc('bmi')" class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 font-bold text-blue-900">مؤشر كتلة الجسم</button>
+        <button onclick="openCalc('crcl')" class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 font-bold text-blue-900">وظائف الكلى (Cockcroft-Gault)</button>
+      </div></div></div>`);
+  }
+};
+
+/* ===== Large attachments (IndexedDB) and PDF tools ===== */
+const BLOB_MAX = 50 * 1024 * 1024;
+const FILE_DB = new Promise((res, rej) => {
+  const r = indexedDB.open('mnote-files', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('blobs');
+  r.onsuccess = () => res(r.result);
+  r.onerror = () => rej(r.error);
+});
+async function putBlob(id, blob) {
+  const db = await FILE_DB;
+  return new Promise((res, rej) => {
+    const t = db.transaction('blobs', 'readwrite');
+    t.objectStore('blobs').put(blob, id);
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
+}
+async function getBlob(id) {
+  const db = await FILE_DB;
+  return new Promise((res, rej) => {
+    const q = db.transaction('blobs').objectStore('blobs').get(id);
+    q.onsuccess = () => res(q.result);
+    q.onerror = () => rej(q.error);
+  });
+}
+async function delBlob(id) {
+  const db = await FILE_DB;
+  db.transaction('blobs', 'readwrite').objectStore('blobs').delete(id);
+}
+
+async function addAttachment(n, f) {
+  if (f.size > BLOB_MAX) { toast('الحد الأقصى لحجم المرفق 50 MB'); return false; }
+  try {
+    const blobId = 'b' + Date.now() + Math.random().toString(36).slice(2, 7);
+    await putBlob(blobId, f);
+    n.attachments = [...(n.attachments || []), {id: Date.now(), name: f.name, size: fmtSize(f.size), mime: f.type || '', blobId}];
+    if (!saveNotesSafe()) { n.attachments.pop(); delBlob(blobId); save(); toast('مساحة التخزين ممتلئة'); return false; }
+    return true;
+  } catch { toast('تعذّر حفظ الملف في المتصفح'); return false; }
+}
+function attachFile(input) {
+  const n = cur(), f = input.files[0];
+  input.value = '';
+  if (!n || !f) return;
+  addAttachment(n, f).then(ok => { if (ok) { toast('تم إرفاق الملف'); render(); } });
+}
+function attachBlob(f) {
+  const n = cur(); if (!n) return;
+  addAttachment(n, f).then(ok => { if (ok) { closeModal(); toast('تم إرفاق التسجيل'); render(); } });
+}
+function removeAttach(i) {
+  const n = cur(); if (!n || !confirm('حذف هذا المرفق؟')) return;
+  const a = n.attachments[i];
+  if (a && a.blobId) delBlob(a.blobId);
+  n.attachments.splice(i, 1);
+  save(); render();
+}
+
+async function openPreview(a) {
+  let mime = a.mime || '', src;
+  if (a.blobId) {
+    const b = await getBlob(a.blobId);
+    if (!b) { toast('الملف غير موجود في المتصفح'); return; }
+    mime = b.type || mime;
+    src = URL.createObjectURL(b);
+  } else {
+    const d = a.data || '';
+    mime = d.startsWith('data:') ? d.slice(5, d.indexOf(';')) : '';
+    if (!mime && a.type === 'audio') mime = 'audio/mp4';
+    src = a.url || URL.createObjectURL(dataToBlob(d));
+  }
+  let body;
+  if (mime.startsWith('image/')) body = `<img src="${src}" alt="" class="max-h-[60vh] w-auto mx-auto rounded-2xl">`;
+  else if (mime.startsWith('audio/')) body = `<audio controls src="${src}" class="w-full"></audio>`;
+  else if (mime.startsWith('video/')) body = `<video controls src="${src}" class="w-full max-h-[60vh] rounded-2xl"></video>`;
+  else if (mime === 'application/pdf' || mime.startsWith('text/')) body = `<iframe src="${src}" class="w-full h-[60vh] rounded-2xl border border-blue-100"></iframe>`;
+  else body = '<p class="text-xs text-slate-500">لا يمكن عرض هذا النوع داخل التطبيق.</p>';
+  const pdfBtn = (mime === 'application/pdf' && a.blobId) ? `<button onclick="openPdfTools('${a.blobId}')" class="btn">تعديل PDF</button>` : '';
+  openModal(`<h3 class="font-black text-blue-900 break-all">${esc(a.name)}</h3>${body}
+    <div class="flex justify-end gap-2">${pdfBtn}<button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button></div>`);
+}
+
+let PDFLIB_PROMISE = null;
+function loadPdfLib() {
+  if (window.PDFLib) return Promise.resolve(window.PDFLib);
+  if (!PDFLIB_PROMISE) PDFLIB_PROMISE = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+    s.onload = () => res(window.PDFLib);
+    s.onerror = () => rej(new Error('تعذّر تحميل أداة PDF'));
+    document.head.appendChild(s);
+  });
+  return PDFLIB_PROMISE;
+}
+
+function openPdfTools(blobId) {
+  const field = (label, id, ph) => `<label class="block text-xs font-bold text-blue-900">${label}<input id="${id}" placeholder="${ph}" class="w-full border border-blue-200 rounded-xl px-3 py-2 mt-1 font-normal focus:outline-none"></label>`;
+  openModal(`<h3 class="font-black text-blue-900">تعديل PDF</h3>
+    <p class="text-[11px] text-slate-400">تُطبَّق التعديلات داخل المتصفح وتُحفظ النتيجة كمرفق جديد، دون تغيير الملف الأصلي.</p>
+    <div class="space-y-3">
+      ${field('تدوير صفحة (الرقم والزاوية)', 'pt-rot', 'مثال: 4 90')}
+      ${field('إضافة نص لاتيني على صفحة (الرقم والنص)', 'pt-stp', 'الصفحة')}
+      <input id="pt-txt" placeholder="Text (لاتيني فقط)" class="w-full border border-blue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+      ${field('حذف صفحات', 'pt-del', 'مثال: 5,9-10')}
+      ${field('استخراج صفحات إلى ملف جديد (بعد الحذف)', 'pt-ext', 'مثال: 1-3,7')}
+    </div>
+    <div id="pt-out" class="text-xs text-slate-500 min-h-[1.25rem]"></div>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button>
+      <button onclick="runPdfEdit('${blobId}')" class="btn">تطبيق وحفظ كنسخة</button>
+    </div>`);
+}
+
+async function runPdfEdit(blobId) {
+  const out = $('pt-out');
+  out.textContent = 'جارٍ المعالجة... (قد يستغرق الملف الكبير وقتاً)';
+  try {
+    const L = await loadPdfLib();
+    const src = await getBlob(blobId);
+    const doc = await L.PDFDocument.load(await src.arrayBuffer(), {ignoreEncryption: true});
+    const parse = (s, total) => {
+      const set = new Set();
+      (s || '').split(',').forEach(p => {
+        p = p.trim(); if (!p) return;
+        const [a, b] = p.split('-').map(x => +x);
+        for (let i = a; i <= (b || a); i++) if (i >= 1 && i <= total) set.add(i - 1);
+      });
+      return [...set].sort((x, y) => x - y);
+    };
+
+    const rot = $('pt-rot').value.trim().split(/\s+/);
+    if (rot[0]) doc.getPage(+rot[0] - 1).setRotation(L.degrees(+(rot[1] || 90)));
+
+    const sp = +$('pt-stp').value, st = $('pt-txt').value.trim();
+    if (sp && st) {
+      const font = await doc.embedFont(L.StandardFonts.Helvetica);
+      const pg = doc.getPage(sp - 1);
+      pg.drawText(st, {x: 40, y: pg.getHeight() - 50, size: 18, font, color: L.rgb(0.1, 0.3, 0.8)});
+    }
+
+    parse($('pt-del').value, doc.getPageCount()).slice().reverse().forEach(i => doc.removePage(i));
+
+    let result = doc;
+    const ext = parse($('pt-ext').value, doc.getPageCount());
+    if (ext.length) {
+      result = await L.PDFDocument.create();
+      (await result.copyPages(doc, ext)).forEach(p => result.addPage(p));
+    }
+
+    const bytes = await result.save();
+    const file = new File([bytes], `معدّل-${Date.now()}.pdf`, {type: 'application/pdf'});
+    const ok = await addAttachment(cur(), file);
+    if (ok) { closeModal(); toast('تم حفظ النسخة المعدّلة كمرفق جديد'); render(); }
+  } catch (e) {
+    out.textContent = 'تعذّر التعديل: ' + (e?.message || 'نص غير مدعوم في الختم، استخدم أحرفاً لاتينية');
+  }
+}
+
+/* ===== Save attachments to the device (viewer confirms each save) ===== */
+async function downloadAttach(blobId) {
+  const a = (cur()?.attachments || []).find(x => x.blobId === blobId);
+  const b = await getBlob(blobId);
+  if (!a || !b) { toast('الملف غير موجود في المتصفح'); return; }
+  const dl = await window.claude?.use?.('downloads').catch(() => null);
+  if (!dl) { toast('حفظ الملف على الجهاز غير متاح في هذه النسخة'); return; }
+  try {
+    await dl.save({filename: a.name, data: b});
+    toast('تم حفظ الملف');
+  } catch (e) {
+    const msg = {
+      declined: 'تم إلغاء الحفظ',
+      rejected_extension: 'صيغة هذا الملف غير مدعومة للحفظ (مثل m4a وmp3)',
+      too_large: 'الملف كبير جداً للحفظ',
+      rate_limited: 'انتظر قليلاً ثم حاول مرة أخرى'
+    }[e?.code] || 'الحفظ على الجهاز غير متاح هنا';
+    toast(msg);
+  }
+}
+
+const _openPreviewBase = openPreview;
+openPreview = async function (a) {
+  await _openPreviewBase(a);
+  if (a.blobId && $('modal')) {
+    const row = $('modal').querySelector('.justify-end');
+    if (row) row.insertAdjacentHTML('afterbegin', `<button onclick="downloadAttach('${a.blobId}')" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold">${ic('down')} حفظ على الجهاز</button>`);
+  }
+};
+
+/* ===== Phase 1: exams, reminders, Google Calendar links, flashcards and quizzes ===== */
+let EXAMS = load('mn_exams', []);
+const saveExams = () => { try { localStorage.setItem('mn_exams', JSON.stringify(EXAMS)); } catch {} };
+const todayKey = () => { const d = new Date(); return ydm(d.getFullYear(), d.getMonth(), d.getDate()); };
+const addDays = (key, k) => { const d = new Date(key + 'T00:00:00'); d.setDate(d.getDate() + k); return ydm(d.getFullYear(), d.getMonth(), d.getDate()); };
+const daysLeft = key => Math.round((new Date(key + 'T00:00:00') - new Date(todayKey() + 'T00:00:00')) / 86400000);
+const compact = key => key.replaceAll('-', '');
+
+/* --- Exams --- */
+function examsHTML() {
+  const rows = EXAMS.slice().sort((a, b) => a.date.localeCompare(b.date)).map(e => {
+    const left = daysLeft(e.date);
+    const label = left < 0 ? 'انتهى' : left === 0 ? 'اليوم' : `بعد ${left} يوم`;
+    return `<div class="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 text-xs flex flex-wrap items-center justify-between gap-2">
+      <div><b class="text-blue-900">${esc(e.title)}</b><div class="text-slate-400">${e.date} • ${label}</div></div>
+      <div class="flex items-center gap-2">
+        <button onclick="planExam(${e.id})" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold">خطة مراجعة</button>
+        <button onclick="gcalExam(${e.id})" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 font-bold">Google Calendar</button>
+        <button onclick="delExam(${e.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button>
+      </div></div>`;
+  }).join('');
+  return `<div id="exams" class="view mt-6"><div class="card space-y-3">
+    <h3 class="font-extrabold text-sm text-blue-900">${ic('note')} امتحاناتي والمراجعة</h3>
+    <div class="flex flex-wrap gap-2 text-xs">
+      <input id="ex-t" placeholder="اسم الامتحان" class="flex-1 min-w-40 border border-blue-200 rounded-xl px-3 py-2">
+      <input id="ex-d" type="date" class="border border-blue-200 rounded-xl px-3 py-2">
+      <button onclick="addExam()" class="btn">أضف امتحاناً</button>
+      <button onclick="enableNotif()" class="px-3 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold">${ic('bell')} تفعيل التذكيرات</button>
+    </div>
+    <div class="space-y-2">${rows || '<p class="text-xs text-slate-400">لا توجد امتحانات بعد</p>'}</div>
+    <p class="text-[10px] text-slate-400">خطة المراجعة تضيف مهام يومية حتى موعد الامتحان (حتى 7 أيام) إلى قائمة المهام. التذكيرات تظهر أثناء فتح التطبيق.</p>
+  </div></div>`;
+}
+function addExam() {
+  const title = $('ex-t').value.trim(), date = $('ex-d').value;
+  if (!title || !date) { toast('أدخل اسم الامتحان وتاريخه'); return; }
+  EXAMS.push({id: Date.now(), title, date});
+  saveExams(); render(); toast('تمت إضافة الامتحان');
+}
+function delExam(id) { EXAMS = EXAMS.filter(e => e.id !== id); saveExams(); render(); }
+function planExam(id) {
+  const e = EXAMS.find(x => x.id === id); if (!e) return;
+  const left = daysLeft(e.date);
+  if (left < 0) { toast('هذا الامتحان انتهى'); return; }
+  const n = Math.min(7, Math.max(left, 1));
+  for (let k = 0; k < n; k++) {
+    S.tasks.push({id: Date.now() + k, text: `مراجعة ${e.title} (${k + 1}/${n})`, pri: k >= n - 2 ? 'عالية' : 'متوسطة', done: false, when: addDays(todayKey(), k)});
+  }
+  save(); toast(`أُضيفت ${n} مهام مراجعة`); render();
+}
+
+/* --- Google Calendar (adds the event in the user's own Google account) --- */
+function gcalLink(title, dateKey) {
+  const s = compact(dateKey), e = compact(addDays(dateKey, 1));
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${s}/${e}`;
+}
+function openGcal(title, dateKey) {
+  if (!window.open(gcalLink(title, dateKey), '_blank')) toast('اسمح بالنوافذ المنبثقة لفتح Google Calendar');
+}
+function gcalExam(id) { const e = EXAMS.find(x => x.id === id); if (e) openGcal('امتحان: ' + e.title, e.date); }
+
+/* --- Reminders while the app is open --- */
+const NOTIFIED = new Set();
+async function enableNotif() {
+  try {
+    if (!('Notification' in window)) { toast('الإشعارات غير مدعومة هنا، ستظهر التذكيرات داخل التطبيق'); return; }
+    const p = await Notification.requestPermission();
+    toast(p === 'granted' ? 'تم تفعيل إشعارات المتصفح' : 'ستظهر التذكيرات داخل التطبيق');
+  } catch { toast('ستظهر التذكيرات داخل التطبيق'); }
+}
+function checkReminders() {
+  const t = todayKey(), tom = addDays(t, 1);
+  const items = [
+    ...EXAMS.map(e => ({k: 'x' + e.id, date: e.date, title: 'امتحان: ' + e.title})),
+    ...S.events.map(e => ({k: 'e' + e.id, date: e.date, title: e.title}))
+  ];
+  items.forEach(it => {
+    const key = it.k + it.date;
+    if ((it.date === t || it.date === tom) && !NOTIFIED.has(key)) {
+      NOTIFIED.add(key);
+      const msg = it.date === t ? `اليوم: ${it.title}` : `غداً: ${it.title}`;
+      toast(msg);
+      try { if (window.Notification && Notification.permission === 'granted') new Notification('Mnote+', {body: msg}); } catch {}
+    }
+  });
+}
+setInterval(checkReminders, 60000);
+checkReminders();
+
+/* --- Flashcards and interactive quizzes generated from the open note --- */
+let STUDY = {kind: null, i: 0, flip: false, score: 0, done: false};
+
+async function genStudy(kind) {
+  const n = cur(), text = n ? plain(n.content).trim() : '';
+  if (!text || text.length < 30) { toast('أضف محتوى للملاحظة أولاً'); return; }
+  const sample = await window.claude?.use?.('sample').catch(() => null);
+  if (!sample) { toast('توليد البطاقات والأسئلة يحتاج الذكاء الاصطناعي'); return; }
+  const isCards = kind === 'cards';
+  const shape = isCards
+    ? '[{"front":"السؤال أو المصطلح","back":"الإجابة"}]'
+    : '[{"q":"السؤال","choices":["الخيار 1","الخيار 2","الخيار 3","الخيار 4"],"answer":0,"why":"سبب الإجابة الصحيحة"}]';
+  const prompt = `${MED_RULES}\n\nمن المادة التالية أنشئ ${isCards ? '8 بطاقات مراجعة' : '5 أسئلة اختيار من متعدد'}. أعد الناتج فقط كمصفوفة JSON صالحة بهذا الشكل: ${shape}. في الأسئلة، answer هو رقم الخيار الصحيح بدءاً من 0. لا تضف أي نص خارج JSON.\n\nالمادة:\n${text}`;
+  toast('جارٍ التوليد...');
+  try {
+    const r = await sample(prompt);
+    const arr = JSON.parse(r.text.replace(/```json|```/g, '').match(/\[[\s\S]*\]/)[0]);
+    if (!Array.isArray(arr) || !arr.length) throw new Error('empty');
+    n[isCards ? 'cards' : 'quiz'] = arr;
+    save(); openStudy(kind);
+  } catch { toast('تعذّر التوليد، حاول مرة أخرى'); }
+}
+function studyBtn(kind) {
+  const n = cur(); if (!n) return;
+  if (n[kind === 'cards' ? 'cards' : 'quiz']?.length) openStudy(kind); else genStudy(kind);
+}
+function openStudy(kind) {
+  const n = cur(), items = kind === 'cards' ? n?.cards : n?.quiz;
+  if (!items?.length) { toast('لا توجد عناصر بعد'); return; }
+  STUDY = {kind, i: 0, flip: false, score: 0, done: false};
+  renderStudy();
+}
+function renderStudy() {
+  const n = cur(), items = STUDY.kind === 'cards' ? n.cards : n.quiz, it = items[STUDY.i];
+  let body;
+  if (STUDY.kind === 'cards') {
+    body = `<div onclick="STUDY.flip=!STUDY.flip;renderStudy()" class="min-h-[10rem] flex items-center justify-center text-center p-6 rounded-3xl bg-blue-50 border border-blue-100 cursor-pointer text-sm font-bold text-blue-900">${esc(STUDY.flip ? it.back : it.front)}</div>
+      <p class="text-[10px] text-slate-400 text-center">اضغط على البطاقة لقلبها</p>
+      <div class="flex justify-between items-center text-xs">
+        <button onclick="stepStudy(-1)" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold">السابق</button>
+        <span>${STUDY.i + 1} / ${items.length}</span>
+        <button onclick="stepStudy(1)" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold">التالي</button>
+      </div>`;
+  } else if (STUDY.done) {
+    body = `<div class="text-center space-y-3"><div class="text-4xl text-blue-600">${ic('target')}</div><p class="font-black text-blue-900">نتيجتك ${STUDY.score} من ${items.length}</p>
+      <button onclick="openStudy('quiz')" class="btn">أعد الاختبار</button></div>`;
+  } else {
+    body = `<p class="font-bold text-blue-900 text-sm">${esc(it.q)}</p>
+      <div class="space-y-2">${(it.choices || []).map((c, j) => `<button onclick="answerQuiz(${j})" class="w-full text-right p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs hover:bg-blue-100">${esc(c)}</button>`).join('')}</div>
+      <div id="qfb" class="text-xs space-y-1"></div>
+      <p class="text-[10px] text-slate-400 text-center">${STUDY.i + 1} / ${items.length}</p>`;
+  }
+  openModal(`<h3 class="font-black text-blue-900">${STUDY.kind === 'cards' ? ic('cards') + ' بطاقات المراجعة' : ic('help') + ' اختبار تفاعلي'}</h3>${body}
+    <div class="flex justify-end"><button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button></div>`);
+}
+function stepStudy(d) {
+  const n = cur().cards.length;
+  STUDY.i = Math.min(n - 1, Math.max(0, STUDY.i + d));
+  STUDY.flip = false;
+  renderStudy();
+}
+function answerQuiz(j) {
+  const it = cur().quiz[STUDY.i], ok = Number(it.answer) === j;
+  if (ok) STUDY.score++;
+  $('qfb').innerHTML = `<p class="${ok ? 'text-emerald-700' : 'text-red-600'} font-bold">${ok ? ic('check') + ' إجابة صحيحة' : ic('x') + ' إجابة غير صحيحة'}</p>
+    <p class="text-slate-600">${esc(it.why || '')}</p>
+    <button onclick="nextQuiz()" class="btn mt-2">${STUDY.i + 1 < cur().quiz.length ? 'السؤال التالي' : 'عرض النتيجة'}</button>`;
+}
+function nextQuiz() {
+  if (STUDY.i + 1 < cur().quiz.length) STUDY.i++;
+  else STUDY.done = true;
+  renderStudy();
+}
+
+/* --- Extra controls on the note and exam panel --- */
+const _render2 = render;
+render = function () {
+  _render2();
+  if (S.tab === 'notes' && cur() && $('ned') && !$('study-x')) {
+    $('ned').insertAdjacentHTML('beforebegin', `<div id="study-x" class="flex flex-wrap gap-2 text-xs">
+      <button onclick="act('sum')" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold">${ic('note')} ملخص</button>
+      <button onclick="studyBtn('cards')" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold">🃏 بطاقات مراجعة</button>
+      <button onclick="studyBtn('quiz')" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold">${ic('help')} اختبار تفاعلي</button>
+    </div>`);
+  }
+  if (S.tab === 'calendar' && !$('exams')) $('v').insertAdjacentHTML('beforeend', examsHTML());
+};
+
+/* ===== Study a text-based PDF ===== */
+let PDFJS_PROMISE = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (!PDFJS_PROMISE) PDFJS_PROMISE = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      res(window.pdfjsLib);
+    };
+    s.onerror = () => rej(new Error('تعذّر تحميل قارئ PDF'));
+    document.head.appendChild(s);
+  });
+  return PDFJS_PROMISE;
+}
+
+async function studyPdf(blobId) {
+  const att = (cur()?.attachments || []).find(x => x.blobId === blobId);
+  const b = await getBlob(blobId);
+  if (!att || !b) { toast('الملف غير موجود'); return; }
+  toast('جارٍ استخراج النص...');
+  try {
+    const lib = await loadPdfJs();
+    const doc = await lib.getDocument({data: await b.arrayBuffer()}).promise;
+    const max = Math.min(doc.numPages, 40);
+    let text = '';
+    for (let p = 1; p <= max && text.length < 30000; p++) {
+      const page = await doc.getPage(p);
+      const c = await page.getTextContent();
+      text += c.items.map(i => i.str).join(' ') + '\n';
+    }
+    text = text.replace(/[ \t]+/g, ' ').trim();
+    if (text.length < 200) { toast('هذا الملف ممسوح ضوئياً ولا يحتوي نصاً قابلاً للقراءة'); return; }
+    const note = {
+      id: Date.now(),
+      title: 'دراسة: ' + att.name.replace(/\.pdf$/i, ''),
+      content: esc(text.slice(0, 30000)).replace(/\n/g, '<br>'),
+      tags: ['دراسة', 'PDF'],
+      date: new Date().toLocaleDateString('ar-EG'),
+      attachments: []
+    };
+    S.notes.unshift(note);
+    S.sel = note.id;
+    save(); closeModal(); S.tab = 'notes'; render();
+    toast(`تم استخراج النص من ${max} صفحة، ويمكنك الآن إنشاء الملخص والبطاقات`);
+  } catch { toast('تعذّر قراءة الملف'); }
+}
+
+const _openPreview4 = openPreview;
+openPreview = async function (a) {
+  await _openPreview4(a);
+  if (a.blobId && (/\.pdf$/i.test(a.name) || a.mime === 'application/pdf') && $('modal')) {
+    const row = $('modal').querySelector('.justify-end');
+    if (row) row.insertAdjacentHTML('afterbegin', `<button onclick="studyPdf('${a.blobId}')" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold">${ic('library')} ادرس هذا الملف</button>`);
+  }
+};
+
+render();
+
+/* ===== Cloud sync with Firebase (Google sign-in + Firestore) ===== */
+const FIREBASE_CONFIG = {
+  apiKey: 'PASTE', authDomain: 'PASTE', projectId: 'PASTE',
+  storageBucket: 'PASTE', messagingSenderId: 'PASTE', appId: 'PASTE'
+};
+let FB = null, UID = null, LAST_PUSHED = '';
+const fbReady = () => typeof firebase !== 'undefined' && FIREBASE_CONFIG.projectId !== 'PASTE';
+const setStatus = t => { const el = $('syncst'); if (el) el.textContent = t; };
+
+// Text data only: attachments stay on this device (Firestore documents are limited to 1 MB)
+function cloudPayload() {
+  return {
+    updatedAt: Date.now(),
+    notes: S.notes.map(n => ({...n, attachments: (n.attachments || []).map(a => ({name: a.name, size: a.size}))})),
+    tasks: S.tasks, events: S.events, exams: EXAMS, books: S.books, files: S.files, set: S.set
+  };
+}
+function applyCloud(d) {
+  if (d.notes) S.notes = d.notes;
+  if (d.tasks) S.tasks = d.tasks;
+  if (d.events) S.events = d.events;
+  if (d.exams) EXAMS = d.exams;
+  if (d.books) S.books = d.books;
+  if (d.files) S.files = d.files;
+  if (d.set) S.set = d.set;
+  S.sel = S.notes[0]?.id ?? null;
+  save();
+  saveExams();
+}
+async function pushNow() {
+  if (!UID) return;
+  const p = cloudPayload();
+  if (JSON.stringify(p).length > 900000) { setStatus('البيانات كبيرة جداً للمزامنة، احذف بعض المحتوى'); return; }
+  await FB.db.collection('users').doc(UID).set(p);
+  localStorage.setItem('mn_synced_at', String(p.updatedAt));
+  LAST_PUSHED = JSON.stringify({...p, updatedAt: 0});
+  setStatus('متزامن ✓');
+}
+async function pullThenPush() {
+  setStatus('جارٍ المزامنة...');
+  const ref = FB.db.collection('users').doc(UID);
+  const snap = await ref.get();
+  const lastSync = Number(localStorage.getItem('mn_synced_at') || 0);
+  if (snap.exists && snap.data().updatedAt > lastSync) {
+    applyCloud(snap.data());
+    localStorage.setItem('mn_synced_at', String(snap.data().updatedAt));
+    toast('تمت مزامنة بياناتك من السحابة');
+    setStatus('متزامن ✓');
+    render();
+  } else {
+    await pushNow();
+  }
+}
+function initFB() {
+  if (!fbReady()) return;
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  FB = {auth: firebase.auth(), db: firebase.firestore()};
+  FB.auth.onAuthStateChanged(async u => {
+    UID = u ? u.uid : null;
+    try { if (UID) await pullThenPush(); } catch { setStatus('تعذّرت المزامنة، تحقق من الإعداد'); }
+    render();
+  });
+}
+function signIn() {
+  if (!FB) { toast('أكمل إعداد Firebase أولاً'); return; }
+  FB.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => toast('تعذّر تسجيل الدخول'));
+}
+function signOutCloud() { if (FB) FB.auth.signOut(); }
+async function syncNow() {
+  try { await pushNow(); toast('تمت المزامنة'); } catch { setStatus('تعذّرت المزامنة'); }
+}
+function syncHTML() {
+  let inner;
+  if (!fbReady()) inner = '<p class="text-xs text-slate-500">لم يُضبط Firebase بعد. أضف الإعدادات في FIREBASE_CONFIG.</p>';
+  else if (UID) inner = `<p class="text-xs text-slate-600">مسجّل: ${esc(FB.auth.currentUser?.email || '')}</p>
+    <div class="flex gap-2"><button onclick="syncNow()" class="btn">مزامنة الآن</button><button onclick="signOutCloud()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">تسجيل الخروج</button></div>`;
+  else inner = '<button onclick="signIn()" class="btn">تسجيل الدخول بحساب Google</button>';
+  return `<div id="syncbox" class="view mt-6"><div class="card space-y-3">
+    <h3 class="font-extrabold text-sm text-blue-900">${ic('cloud')} المزامنة بين الأجهزة</h3>
+    ${inner}
+    <p id="syncst" class="text-xs text-emerald-700 min-h-[1rem]"></p>
+    <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب. المرفقات والتسجيلات وملفات PDF تبقى على هذا الجهاز.</p>
+  </div></div>`;
+}
+
+const _render3 = render;
+render = function () {
+  _render3();
+  if (S.tab === 'settings' && !$('syncbox')) $('v').insertAdjacentHTML('beforeend', syncHTML());
+};
+
+let LAST_CHECK = null;
+setInterval(() => {
+  if (!UID) return;
+  const cur = JSON.stringify({...cloudPayload(), updatedAt: 0});
+  if (cur !== LAST_PUSHED) { LAST_PUSHED = cur; pushNow().catch(() => setStatus('تعذّرت المزامنة')); }
+}, 5000);
+
+initFB();
+
+</script>
+</body>
+</html>
