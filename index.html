@@ -2247,14 +2247,30 @@ const isStandalone = () => matchMedia('(display-mode: standalone)').matches || n
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); DEF_PROMPT = e; if (S.tab === 'settings') render(); });
 window.addEventListener('appinstalled', () => { DEF_PROMPT = null; toast('تم تثبيت التطبيق'); if (S.tab === 'settings') render(); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+async function installDiag() {
+  const el = $('inst-diag'); if (!el) return;
+  const ok = async u => { try { const r = await fetch(u, {cache: 'no-store'}); return r.ok; } catch { return false; } };
+  const reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration().catch(() => null) : null;
+  const rows = [
+    ['الموقع على https', location.protocol === 'https:' || location.hostname === 'localhost'],
+    ['ملف manifest.webmanifest مرفوع', await ok('manifest.webmanifest')],
+    ['ملف sw.js مرفوع', await ok('sw.js')],
+    ['أيقونة icon-512.png مرفوعة', await ok('icon-512.png')],
+    ['أيقونة icon-192.png مرفوعة', await ok('icon-192.png')],
+    ['Service Worker يعمل', !!(reg && (reg.active || reg.installing || reg.waiting))]
+  ];
+  el.innerHTML = rows.map(([t, v]) => `<div class="text-[11px] ${v ? 'text-emerald-700' : 'text-red-600 font-bold'}">${v ? '✓' : '✗'} ${t}</div>`).join('')
+    + (rows.every(r => r[1]) ? '<p class="text-[10px] text-slate-400 pt-1">كل الملفات سليمة. إن لم يظهر طلب التثبيت فاستخدم قائمة المتصفح ⋮ ← «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».</p>' : '<p class="text-[10px] text-red-600 pt-1">ارفع الملفات الناقصة (✗) إلى نفس مجلد index.html ثم أعد تحميل الصفحة مرتين.</p>');
+}
 async function installApp() {
   if (DEF_PROMPT) { DEF_PROMPT.prompt(); try { await DEF_PROMPT.userChoice; } catch {} DEF_PROMPT = null; render(); return; }
-  toast(/iphone|ipad|ipod/i.test(navigator.userAgent) ? 'في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»' : 'من قائمة المتصفح ⋮ اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»');
+  toast(/iphone|ipad|ipod/i.test(navigator.userAgent) ? 'في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»' : 'جارٍ فحص التثبيت... راجع النتيجة أسفل الزر'); installDiag();
 }
 function installHTML() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const body = isStandalone() ? '<p class="text-xs text-emerald-700">التطبيق مثبّت ويعمل بشكل مستقل ✓</p>'
     : `<button onclick="installApp()" class="btn">${ic('down')} تثبيت التطبيق على جهازك</button>
+       <div id="inst-diag" class="space-y-0.5"></div>
        <p class="text-[10px] text-slate-400">${ios ? 'على آيفون: افتح الموقع في سفاري، اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».' : (DEF_PROMPT ? 'اضغط الزر وسيظهر لك طلب التثبيت.' : 'إن لم يظهر طلب التثبيت: من قائمة المتصفح ⋮ اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».')}</p>`;
   return `<div class="view mt-4"><div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">📲 تثبيت كتطبيق</h3>
     <p class="text-[11px] text-slate-500">يعمل من الشاشة الرئيسية بدون شريط المتصفح، ويفتح حتى بدون إنترنت (المزامنة تتم عند عودة الاتصال).</p>${body}</div></div>`;
@@ -2270,7 +2286,7 @@ function syncHTML() {
     ${inner}
     <p id="syncst" class="text-xs text-emerald-700 min-h-[1rem]"></p>
     <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب والإعدادات (اللون والمظهر). الملفات (حتى 20 MB للملف) والتسجيلات وتعديلاتها تُزامَن أيضاً عند تسجيل الدخول.</p>
-  </div></div><div class="view mt-4"><div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">📲 تثبيت كتطبيق</h3><p class="text-[11px] text-slate-500">ثبّت Mnote+ على شاشتك الرئيسية ليعمل بملء الشاشة وبدون اتصال.</p><button id="inst-btn" onclick="installApp()" class="btn">تثبيت التطبيق</button></div></div>${installHTML()}${geminiBox()}`;
+  </div></div>${installHTML()}${geminiBox()}`;
 }
 
 const _render3 = render;
@@ -2613,16 +2629,6 @@ async function cloudBackfill() {
 const _op5 = openPreview;
 openPreview = async function (a) { if (a.blobId) await ensureBlob(a.blobId); return _op5(a); };
 
-
-/* ===== PWA: install as app ===== */
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
-let INST = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); INST = e; const b = $('inst-btn'); if (b) b.classList.remove('hidden'); });
-window.addEventListener('appinstalled', () => { INST = null; toast('تم تثبيت التطبيق'); });
-async function installApp() {
-  if (INST) { INST.prompt(); await INST.userChoice; INST = null; return; }
-  toast(/iphone|ipad/i.test(navigator.userAgent) ? 'في سفاري: زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»' : 'من قائمة المتصفح (⋮) اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»');
-}
 
 initFB();
 updateUserUI();
