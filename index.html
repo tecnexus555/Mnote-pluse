@@ -38,6 +38,40 @@
   .ned:empty:before{content:"اكتب محتوى الملاحظة...";color:#94a3b8}
   .ned:focus{outline:none;border-color:#93c5fd}
   #modal>div{z-index:70!important}#toasts{z-index:80!important}
+
+  /* ===== Themes & accent colors ===== */
+  :root{--ac:#2563eb;--ac2:#60a5fa;--ac-d:#1d4ed8;--surf:#ffffff;--bgc:#f0f6ff;--ink:#1e3a8a;--txt:#1e293b;--mut:#64748b;--line:#dbeafe;--bar:rgba(255,255,255,.9);--shadow:rgba(30,64,175,.06)}
+  html[data-theme=light]{--bgc:#f8fafc;--ink:#0f172a;--line:#e2e8f0}
+  html[data-theme=blue]{--bgc:#dbeafe;--surf:#eff6ff;--ink:#1e3a8a;--line:#bfdbfe;--bar:rgba(239,246,255,.92)}
+  html[data-theme=pastel]{--bgc:#fdf2f8;--surf:#fffafc;--ink:#6b21a8;--txt:#4b3a5c;--mut:#8b7a9c;--line:#fbcfe8;--bar:rgba(255,250,252,.92)}
+  html[data-theme=dark]{--bgc:#0b1220;--surf:#162032;--ink:#e2e8f0;--txt:#e2e8f0;--mut:#94a3b8;--line:#2a3a55;--bar:rgba(22,32,50,.95);--shadow:rgba(0,0,0,.4);color-scheme:dark}
+  body{background:var(--bgc)!important;color:var(--txt)}
+  .card{background:var(--surf)!important;border-color:var(--line)!important;box-shadow:0 1px 3px var(--shadow)}
+  aside,header,#navBottom{background:var(--bar)!important;border-color:var(--line)!important}
+  .bg-white,.bg-white\/90,.bg-white\/80{background:var(--surf)!important}
+  .bg-blue-600,.btn{background:var(--ac)!important}
+  .btn:hover,.hover\:bg-blue-700:hover{background:var(--ac-d)!important}
+  .text-blue-600,.text-blue-700,.mn-credit a{color:var(--ac)!important}
+  .text-blue-900,.ned h1,.ned h2,.ned h3{color:var(--ink)!important}
+  .text-blue-400{color:var(--ac2)!important}
+  .text-slate-800,.text-slate-700{color:var(--txt)!important}
+  .text-slate-600,.text-slate-500,.text-slate-400,.nb{color:var(--mut)!important}
+  .from-blue-600{--tw-gradient-from:var(--ac)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+  .to-blue-400,.to-indigo-600{--tw-gradient-to:var(--ac2)!important}
+  .bg-blue-50,.bg-blue-50\/40,.bg-blue-50\/60,.bg-slate-50,.bg-slate-100{background:color-mix(in srgb,var(--ac) 9%,var(--surf))!important}
+  .bg-blue-100,.nb.on{background:color-mix(in srgb,var(--ac) 18%,var(--surf))!important}
+  .nb.on{color:var(--ac)!important}
+  .hover\:bg-blue-50:hover{background:color-mix(in srgb,var(--ac) 12%,var(--surf))!important}
+  .border-blue-100,.border-blue-50,.border-l,.border-t,.border-b{border-color:var(--line)!important}
+  .mn-tile{background:color-mix(in srgb,var(--ac) 14%,var(--surf));color:var(--ac);box-shadow:inset 0 0 0 1px var(--line)}
+  .nb.on .mn-tile,.mn-tile.g{background:linear-gradient(135deg,var(--ac2),var(--ac))!important;color:#fff!important}
+  input,textarea,select,.ned{background-color:color-mix(in srgb,var(--ac) 6%,var(--surf));color:var(--txt);border-color:var(--line)}
+  .accent-blue-600{accent-color:var(--ac)}
+  .sw{width:2rem;height:2rem;border-radius:9999px;border:3px solid var(--surf);box-shadow:0 0 0 1px var(--line);cursor:pointer;transition:transform .15s}
+  .sw.on{box-shadow:0 0 0 3px var(--ac);transform:scale(1.1)}
+  .thm{flex:1;min-width:5.2rem;padding:.55rem .4rem;border-radius:1rem;border:2px solid var(--line);font-size:.72rem;font-weight:700;text-align:center;cursor:pointer;color:var(--txt)}
+  .thm.on{border-color:var(--ac);color:var(--ac)}
+  .thm i{display:block;height:1.4rem;border-radius:.6rem;margin-bottom:.35rem;border:1px solid rgba(0,0,0,.08)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -179,6 +213,7 @@ const save = () => {
   return ok;
 };
 
+setTimeout(()=>{try{applyTheme()}catch{}},0);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PRI = {'عالية':'bg-red-50 text-red-600','متوسطة':'bg-amber-50 text-amber-600','منخفضة':'bg-emerald-50 text-emerald-600'};
 const COL = {blue:'bg-blue-50 text-blue-700',green:'bg-emerald-50 text-emerald-700',purple:'bg-purple-50 text-purple-700',pink:'bg-pink-50 text-pink-700',amber:'bg-amber-50 text-amber-700'};
@@ -186,6 +221,18 @@ const EV = {1:[['إجتماع الفريق','10:00 ص','blue']],2:[['مذاكر�
 const FILES = [['محاضرة الجهاز الدوري.pdf','2.4 MB','PDF','bg-red-50 text-red-600','📕'],['ملخص الفصل الثاني.docx','1.8 MB','Word','bg-blue-50 text-blue-600','📘'],['جدول المحاضرات.xlsx','1.1 MB','Excel','bg-emerald-50 text-emerald-600','📗'],['عرض تقديمي النظام الشمسي.pptx','3.7 MB','PowerPoint','bg-amber-50 text-amber-600','📙'],['ملاحظة سريعة.txt','256 KB','Text','bg-slate-100 text-slate-600','📄'],['صورة توضيحية.jpg','1.2 MB','Image','bg-purple-50 text-purple-600','🖼️']];
 const BOOKS = [['العادات الذرية','جيمس كلير','#1e293b'],['قوة الآن','إكهارت تول','#2563eb'],['الذكاء العاطفي','دانيال غولمان','#7c3aed'],['الصحة النفسية','—','#059669']];
 
+const ACCENTS = {'#2563eb':'أزرق','#7c3aed':'بنفسجي','#059669':'أخضر','#db2777':'وردي','#d97706':'برتقالي','#1e293b':'داكن'};
+const THEMES = {normal:['عادي','linear-gradient(90deg,#f0f6ff,#fff)'],light:['فاتح','#f8fafc'],dark:['داكن','#0b1220'],blue:['أزرق','#bfdbfe'],pastel:['باستيل','linear-gradient(90deg,#fbcfe8,#e9d5ff,#bfdbfe)']};
+function applyTheme() {
+  const r = document.documentElement, c = S.set.color || '#2563eb', t = S.set.theme || 'normal';
+  r.dataset.theme = THEMES[t] ? t : 'normal';
+  r.style.setProperty('--ac', c);
+  r.style.setProperty('--ac2', `color-mix(in srgb, ${c} 60%, #fff)`);
+  r.style.setProperty('--ac-d', `color-mix(in srgb, ${c} 80%, #000)`);
+  // dark accent on dark theme would be invisible: lighten it
+  if (r.dataset.theme === 'dark' && c === '#1e293b') r.style.setProperty('--ac', '#94a3b8');
+}
+function setPref(k, v) { S.set[k] = v; S.set.prefAt = Date.now(); save(); applyTheme(); render(); }
 const cur = () => S.notes.find(n => n.id === S.sel);
 const toast = msg => { const t = document.createElement('div'); t.className = 'bg-blue-900 text-white px-4 py-2.5 rounded-2xl shadow-xl text-xs'; t.textContent = msg; $('toasts').appendChild(t); setTimeout(() => t.remove(), 2500); };
 const $ = id => document.getElementById(id);
@@ -399,7 +446,11 @@ V.settings = () => `
       <div><h2 class="text-lg font-black text-blue-900">${ic('settings')} التخصيص والعرض</h2><p class="text-xs text-slate-400">اجعل تطبيقك يعكس ذوقك الخاص</p></div>
       <div class="space-y-2">
         <div class="text-xs font-bold text-blue-900">ألوان التطبيق</div>
-        <div class="flex gap-2">${['#2563eb','#7c3aed','#059669','#db2777','#d97706','#1e293b'].map(c=>`<span class="w-8 h-8 rounded-full border-2 border-white shadow" style="background:${c}"></span>`).join('')}</div>
+        <div class="flex gap-2 flex-wrap">${Object.entries(ACCENTS).map(([c,n])=>`<button title="${n}" onclick="setPref('color','${c}')" class="sw ${(S.set.color||'#2563eb')===c?'on':''}" style="background:${c}"></button>`).join('')}</div>
+      </div>
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-blue-900">المظهر</div>
+        <div class="flex gap-2 flex-wrap">${Object.entries(THEMES).map(([k,[n,c]])=>`<button onclick="setPref('theme','${k}')" class="thm ${(S.set.theme||'normal')===k?'on':''}"><i style="background:${c}"></i>${n}</button>`).join('')}</div>
       </div>
       <div class="space-y-3 text-xs">
         <div class="text-xs font-bold text-blue-900">التفضيلات</div>
@@ -410,7 +461,7 @@ V.settings = () => `
           </div>`).join('')}
       </div>
       <div class="flex gap-3">
-        <button onclick="save();toast('تم حفظ الإعدادات')" class="btn">حفظ التغييرات</button>
+        <button onclick="save();if(UID)syncMerge(true);else toast('تم حفظ الإعدادات')" class="btn">حفظ التغييرات</button>
         <button onclick="resetLocal()" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs">إعادة تعيين</button>
       </div>
     </div>
@@ -1932,10 +1983,11 @@ function mergeData(local, cloud, base) {
   const stats = {conflicts: 0}, out = {};
   for (const k of COLL) out[k] = mergeList(local[k], cloud[k], base[k], k === 'notes', stats);
   out.set = {...(cloud.set || {}), ...(local.set || {})};
+  if (((cloud.set || {}).prefAt || 0) > ((local.set || {}).prefAt || 0)) for (const k of ['color', 'theme', 'prefAt']) if ((cloud.set || {})[k] !== undefined) out.set[k] = cloud.set[k];
   return {data: out, stats};
 }
 function applyMerged(d) {
-  S.notes = d.notes; S.tasks = d.tasks; S.events = d.events; EXAMS = d.exams; S.books = d.books; S.files = d.files; S.set = d.set;
+  S.notes = d.notes; S.tasks = d.tasks; S.events = d.events; EXAMS = d.exams; S.books = d.books; S.files = d.files; S.set = d.set; applyTheme();
   if (!S.notes.some(n => n.id === S.sel)) S.sel = S.notes[0]?.id ?? null;
   save(); save2(); saveExams();
 }
@@ -1943,7 +1995,7 @@ function applyMerged(d) {
 const syncErrMsg = e => {
   const c = (e && e.code) || '';
   if (c === 'size') return 'البيانات أكبر من حد المزامنة (900KB): احذف ملاحظات أو محتوى كبيراً';
-  if (c === 'permission-denied') return 'قواعد Firestore ترفض الوصول: انسخ القواعد من الإعدادات (بطاقة «قواعد Firestore») وانشرها في Firebase Console';
+  if (c === 'permission-denied') return 'المزامنة مرفوضة: تأكد من تسجيل الدخول ومن نشر قواعد Firestore في Firebase Console';
   if (c === 'unavailable' || c === 'auth/network-request-failed') return 'لا يوجد اتصال، ستُعاد المحاولة تلقائياً';
   if (c === 'not-found' || c === 'failed-precondition') return 'أنشئ قاعدة Firestore Database في Firebase أولاً';
   return 'تعذّرت المزامنة' + (c ? ' (' + c + ')' : '');
@@ -2072,8 +2124,8 @@ function syncHTML() {
     <h3 class="font-extrabold text-sm text-blue-900">${ic('cloud')} المزامنة بين الأجهزة</h3>
     ${inner}
     <p id="syncst" class="text-xs text-emerald-700 min-h-[1rem]"></p>
-    <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب. الملفات (حتى 20 MB للملف) والتسجيلات وتعديلاتها تُزامَن أيضاً عند تسجيل الدخول.</p>
-  </div></div>${geminiBox()}${rulesBox()}`;
+    <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب والإعدادات (اللون والمظهر). الملفات (حتى 20 MB للملف) والتسجيلات وتعديلاتها تُزامَن أيضاً عند تسجيل الدخول.</p>
+  </div></div>${geminiBox()}`;
 }
 
 const _render3 = render;
@@ -2084,9 +2136,9 @@ render = function () {
 };
 
 setInterval(() => {
-  if (!UID || SYNCING || Date.now() - SYNC_FAIL_AT < 30000) return;
+  if (!UID || SYNCING || S.set.sync === false || Date.now() - SYNC_FAIL_AT < 30000) return;
   if (JSON.stringify({...cloudPayload(), updatedAt: 0}) !== LAST_PUSHED) syncMerge();
-}, 5000);
+}, 2500);
 window.addEventListener('online', () => { SYNC_FAIL_AT = 0; syncMerge(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMerge(); });
 
@@ -2309,7 +2361,7 @@ async function nbRecs() {
 }
 
 
-/* ===== مجاني: Gemini (مفتاح المستخدم) + مزامنة الملفات عبر Firestore ===== */
+/* ===== Gemini (مفتاح المستخدم) + مزامنة الملفات ===== */
 const GKEY = () => localStorage.getItem('mn_gkey') || '';
 async function geminiText(prompt) {
   let last;
@@ -2333,13 +2385,6 @@ function geminiBox() {
     <input id="gk" type="password" dir="ltr" value="${esc(GKEY())}" placeholder="AIza..." class="w-full bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
     <div class="flex gap-2 items-center"><button onclick="saveGKey()" class="btn">حفظ</button><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="text-xs text-blue-600 font-bold">احصل على مفتاح مجاني</a></div>
     <p class="text-[10px] text-slate-400">يُحفظ المفتاح في هذا المتصفح فقط ولا يُرفع إلى أي مكان.</p></div></div>`;
-}
-const RULES_TXT = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /users/{uid}/{document=**} {\n      allow read, write: if request.auth != null && request.auth.uid == uid;\n    }\n  }\n}";
-function rulesBox() {
-  return `<div class="view mt-4"><div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">🔒 قواعد Firestore (مطلوبة لمزامنة الملفات)</h3>
-    <p class="text-[11px] text-slate-500">الصقها في Firebase Console ثم Firestore Database ثم Rules، واضغط Publish. تسمح لكل مستخدم بوثيقته وملفاته فقط.</p>
-    <pre dir="ltr" class="text-[10px] bg-slate-50 border border-blue-100 rounded-xl p-3 overflow-x-auto">${esc(RULES_TXT)}</pre>
-    <button onclick="navigator.clipboard.writeText(RULES_TXT).then(()=>toast('تم نسخ القواعد'))" class="btn">نسخ القواعد</button></div></div>`;
 }
 function saveGKey() { const v = $('gk').value.trim(); if (v) localStorage.setItem('mn_gkey', v); else localStorage.removeItem('mn_gkey'); toast(v ? 'تم حفظ المفتاح' : 'تم حذف المفتاح'); }
 
