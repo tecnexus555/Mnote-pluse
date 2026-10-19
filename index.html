@@ -37,6 +37,7 @@
   .ned a{color:#2563eb;text-decoration:underline}
   .ned:empty:before{content:"اكتب محتوى الملاحظة...";color:#94a3b8}
   .ned:focus{outline:none;border-color:#93c5fd}
+  #modal>div{z-index:70!important}#toasts{z-index:80!important}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -533,16 +534,16 @@ V.files = () => {
   <div class="view space-y-6">
     <div class="card flex flex-wrap justify-between items-center gap-4">
       <div><h2 class="text-lg font-black text-blue-900">المكتبة والملفات</h2><p class="text-xs text-slate-400">كل ملفاتك في مكان واحد</p></div>
-      <label class="btn cursor-pointer">${ic('up')} رفع ملف<input type="file" multiple class="hidden" onchange="addFiles(this)"></label>
+      <div class="flex gap-2"><button onclick="newNotebook()" class="btn">+ دفتر جديد</button><label class="btn cursor-pointer">${ic('up')} رفع ملف<input type="file" multiple class="hidden" onchange="addFiles(this)"></label></div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-center text-xs">
       ${cats.map(c => `<button onclick="S.fcat='${c}';render()" class="card !p-3 space-y-1 ${S.fcat===c ? '!bg-blue-600 !text-white' : ''}"><div class="font-bold">${c}</div><div class="opacity-70">${S.files.filter(f => inCat(f,c)).length}</div></button>`).join('')}
     </div>
     <div class="card space-y-2">
       <h3 class="font-extrabold text-sm text-blue-900 mb-2">الملفات (${shown.length})</h3>
-      ${shown.map(f => `<div class="flex items-center justify-between p-3 rounded-2xl bg-blue-50/30 border border-blue-100 text-xs gap-2"><div class="flex items-center gap-3 min-w-0"><span>${tile(f.icon)}</span><span class="font-bold text-blue-900 truncate">${esc(f.name)}</span></div><div class="flex items-center gap-3 text-slate-500 shrink-0"><span class="hidden sm:inline">${esc(f.size)}</span><span class="chip ${f.cls}">${esc(f.type)}</span><button onclick="togFile(${f.id})" class="${f.fav ? 'text-amber-400' : 'text-slate-300'}">${ic('star')}</button><button onclick="delFile(${f.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div></div>`).join('') || '<p class="text-xs text-slate-400">لا توجد ملفات في هذا القسم</p>'}
+      ${shown.map(f => `<div class="flex items-center justify-between p-3 rounded-2xl bg-blue-50/30 border border-blue-100 text-xs gap-2"><div onclick="openFile(${f.id})" class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"><span>${tile(f.icon)}</span><span class="font-bold text-blue-900 truncate">${esc(f.name)}</span></div><div class="flex items-center gap-3 text-slate-500 shrink-0"><span class="hidden sm:inline">${esc(f.size)}</span><span class="chip ${f.cls}">${esc(f.type)}</span><button onclick="openFile(${f.id})" class="btn !py-1 !px-3 !text-[11px]">فتح</button><button onclick="togFile(${f.id})" class="${f.fav ? 'text-amber-400' : 'text-slate-300'}">${ic('star')}</button><button onclick="delFile(${f.id})" class="text-slate-300 hover:text-red-500">${ic('x')}</button></div></div>`).join('') || '<p class="text-xs text-slate-400">لا توجد ملفات في هذا القسم</p>'}
     </div>
-    <p class="text-[11px] text-slate-400">تُحفظ بيانات الملف (الاسم والحجم والنوع) في هذا المتصفح فقط، ولا يُرفع محتوى الملف إلى خادم في هذه النسخة.</p>
+    <p class="text-[11px] text-slate-400">اضغط «فتح» لعرض الملف داخل التطبيق والكتابة عليه بالقلم أو التظليل أو النص. تُحفظ الملفات وتعديلاتها في هذا المتصفح فقط.</p>
   </div>`;
 };
 
@@ -591,14 +592,21 @@ function delEvent(id) { S.events = S.events.filter(e => e.id !== id); save2(); r
 
 function addFiles(input) {
   if (!canAdd(S.files.length, FREE.files)) return;
-  [...input.files].forEach((f,k) => {
-    const [type, cls, icon] = extOf(f.name);
-    S.files.unshift({id:Date.now()+k, name:f.name, size:fmtSize(f.size), type, cls, icon, fav:false});
+  const list = [...input.files], added = [];
+  list.forEach((f, k) => {
+    const [type, cls, icon] = extOf(f.name), o = {id:Date.now()+k, name:f.name, size:fmtSize(f.size), type, cls, icon, fav:false};
+    S.files.unshift(o); added.push([o, f]);
   });
+  input.value = '';
   save2(); render(); toast('تمت إضافة الملفات');
+  added.forEach(([o, f]) => {
+    if (f.size > BLOB_MAX) return;
+    const id = 'b' + o.id, to = new Promise((_, r) => setTimeout(r, 8000));
+    Promise.race([putBlob(id, f), to]).then(() => { o.blobId = id; save2(); cloudPut(id, f).then(ok => { if (ok) { o.cloud = 1; save2(); } }); }).catch(() => {});
+  });
 }
 function togFile(id) { const f = S.files.find(x => x.id === id); if (f) { f.fav = !f.fav; save2(); render(); } }
-function delFile(id) { S.files = S.files.filter(x => x.id !== id); save2(); render(); }
+function delFile(id) { const d = S.files.find(x => x.id === id); if (d) { if (d.blobId) { delBlob(d.blobId); cloudDel(d.blobId); } delBlob("ann_" + d.id); cloudDel("ann_" + d.id); } S.files = S.files.filter(x => x.id !== id); save2(); render(); }
 
 function addBook() {
   if (!canAdd(S.books.length, FREE.books)) return;
@@ -1049,7 +1057,7 @@ const TASKS = {
 let TEACH_AI = false;
 
 async function hasAI() {
-  try { return !!(await window.claude?.use?.('sample')); } catch { return false; }
+  try { return !!(await getSample()); } catch { return false; }
 }
 const noteText = () => plain(cur()?.content).trim();
 function scheduleText() {
@@ -1060,7 +1068,7 @@ function scheduleText() {
 
 async function askAI(kind, custom) {
   const out = $('tout');
-  const sample = await window.claude?.use?.('sample').catch(() => null);
+  const sample = await getSample();
   if (!sample) { out.textContent = 'الذكاء الاصطناعي غير متاح في هذه النسخة.'; return; }
   const task = custom || TASKS[kind]();
   const data = kind === 'plan' ? scheduleText() : noteText();
@@ -1092,8 +1100,8 @@ async function openTeacher() {
   if (!cur()) { toast('افتح ملاحظة أولاً'); return; }
   TEACH_AI = await hasAI();
   const badge = TEACH_AI
-    ? '<span class="chip bg-emerald-50 text-emerald-700">متصل بـ Claude</span>'
-    : '<span class="chip bg-amber-50 text-amber-700">وضع محلي (بدون ذكاء اصطناعي)</span>';
+    ? '<span class="chip bg-emerald-50 text-emerald-700">الذكاء الاصطناعي مفعّل</span>'
+    : '<span class="chip bg-amber-50 text-amber-700">وضع محلي — أضف مفتاح Gemini المجاني من الإعدادات</span>';
   openModal(`<div class="flex items-center gap-3">
       <img src="${IMG.teacher}" alt="المعلم الذكي" class="h-14 w-14 object-contain shrink-0 rounded-2xl bg-blue-50">
       <div><h3 class="font-black text-blue-900">المعلم الذكي (طب)</h3>${badge}</div>
@@ -1233,7 +1241,7 @@ async function runTranslate() {
   const text = $('trin').value.trim();
   if (!text) return;
   const out = $('tro');
-  const sample = await window.claude?.use?.('sample').catch(() => null);
+  const sample = await getSample();
   if (!sample) { out.textContent = 'الترجمة تحتاج إلى الذكاء الاصطناعي، وهو غير متاح في هذه النسخة.'; return; }
   out.textContent = 'جارٍ الترجمة...';
   try {
@@ -1461,6 +1469,7 @@ async function addAttachment(n, f) {
   try {
     const blobId = 'b' + Date.now() + Math.random().toString(36).slice(2, 7);
     await putBlob(blobId, f);
+    cloudPut(blobId, f).then(ok => { const a = n.attachments.find(x => x.blobId === blobId); if (ok && a) { a.cloud = 1; save(); } });
     n.attachments = [...(n.attachments || []), {id: Date.now(), name: f.name, size: fmtSize(f.size), mime: f.type || '', blobId}];
     if (!saveNotesSafe()) { n.attachments.pop(); delBlob(blobId); save(); toast('مساحة التخزين ممتلئة'); return false; }
     return true;
@@ -1709,7 +1718,7 @@ let STUDY = {kind: null, i: 0, flip: false, score: 0, done: false};
 async function genStudy(kind) {
   const n = cur(), text = n ? plain(n.content).trim() : '';
   if (!text || text.length < 30) { toast('أضف محتوى للملاحظة أولاً'); return; }
-  const sample = await window.claude?.use?.('sample').catch(() => null);
+  const sample = await getSample();
   if (!sample) { toast('توليد البطاقات والأسئلة يحتاج الذكاء الاصطناعي'); return; }
   const isCards = kind === 'cards';
   const shape = isCards
@@ -1886,7 +1895,7 @@ const stableStr = o => JSON.stringify(o, (k, v) => (v && typeof v === 'object' &
 const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h + ':' + t.length; };
 const hOf = o => hashStr(stableStr(o));
 function isMissingAtt(a) { return !a.data && !a.blobId && !a.url; }
-const attStub = a => { const r = {id: a.id, name: a.name, size: a.size}; if (a.mime) r.mime = a.mime; if (a.type) r.type = a.type; if (a.url) r.url = a.url; return r; };
+const attStub = a => { const r = {id: a.id, name: a.name, size: a.size}; if (a.blobId) r.blobId = a.blobId; if (a.cloud) r.cloud = 1; if (a.mime) r.mime = a.mime; if (a.type) r.type = a.type; if (a.url) r.url = a.url; return r; };
 const noteStub = n => ({...n, attachments: (n.attachments || []).map(attStub)});
 const localData = () => ({notes: S.notes, tasks: S.tasks, events: S.events, exams: EXAMS, books: S.books, files: S.files, set: S.set});
 const toCloud = d => JSON.parse(JSON.stringify({notes: (d.notes || []).map(noteStub), tasks: d.tasks || [], events: d.events || [], exams: d.exams || [], books: d.books || [], files: d.files || [], set: d.set || {}}));
@@ -1934,7 +1943,7 @@ function applyMerged(d) {
 const syncErrMsg = e => {
   const c = (e && e.code) || '';
   if (c === 'size') return 'البيانات أكبر من حد المزامنة (900KB): احذف ملاحظات أو محتوى كبيراً';
-  if (c === 'permission-denied') return 'قواعد Firestore ترفض الوصول: اسمح لكل مستخدم بوثيقته فقط';
+  if (c === 'permission-denied') return 'قواعد Firestore ترفض الوصول: انسخ القواعد من الإعدادات (بطاقة «قواعد Firestore») وانشرها في Firebase Console';
   if (c === 'unavailable' || c === 'auth/network-request-failed') return 'لا يوجد اتصال، ستُعاد المحاولة تلقائياً';
   if (c === 'not-found' || c === 'failed-precondition') return 'أنشئ قاعدة Firestore Database في Firebase أولاً';
   return 'تعذّرت المزامنة' + (c ? ' (' + c + ')' : '');
@@ -1978,7 +1987,7 @@ async function syncMerge(manual) {
     LAST_PUSHED = JSON.stringify({...cloudPayload(), updatedAt: 0});
     SYNC_FAIL_AT = 0; SIZE_WARNED = false;
     if (before !== hOf(toCloud(localData()))) render();
-    setStatus('متزامن ✓');
+    setStatus('متزامن ✓'); cloudBackfill();
     if (res.conflicts) toast('عُدّلت ملاحظة على جهازين: حفظت النسختين معاً');
     else if (manual) toast('تمت المزامنة');
   } catch (e) {
@@ -2063,8 +2072,8 @@ function syncHTML() {
     <h3 class="font-extrabold text-sm text-blue-900">${ic('cloud')} المزامنة بين الأجهزة</h3>
     ${inner}
     <p id="syncst" class="text-xs text-emerald-700 min-h-[1rem]"></p>
-    <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب. المرفقات والتسجيلات وملفات PDF تبقى على هذا الجهاز.</p>
-  </div></div>`;
+    <p class="text-[10px] text-slate-400">تُزامَن الملاحظات والمهام والمواعيد والامتحانات والكتب. الملفات (حتى 20 MB للملف) والتسجيلات وتعديلاتها تُزامَن أيضاً عند تسجيل الدخول.</p>
+  </div></div>${geminiBox()}${rulesBox()}`;
 }
 
 const _render3 = render;
@@ -2080,6 +2089,302 @@ setInterval(() => {
 }, 5000);
 window.addEventListener('online', () => { SYNC_FAIL_AT = 0; syncMerge(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) syncMerge(); });
+
+/* ===== فتح الملفات والدفاتر داخل التطبيق وتعديلها ===== */
+KNOWN.push('Notebook');
+const NB = {f:null, kind:'', pages:[], st:[], hist:[], tool:'pen', color:'#1e3a8a', size:3, drag:null, t:null};
+const NB_TOOLS = [['hand','✋','تمرير'],['pen','✏️','قلم'],['hl','🖍️','تظليل'],['er','🧽','ممحاة'],['tx','T','نص']];
+const NB_COLS = ['#1e3a8a','#dc2626','#059669','#111827','#eab308'];
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const annKey = f => 'ann_' + f.id;
+async function loadAnn(f) {
+  let st = []; try { const b = await getBlob(annKey(f)); st = b ? JSON.parse(await b.text()) : []; } catch {}
+  const c = await cloudGet(annKey(f));
+  if (c && (c.ts || 0) > +(localStorage.getItem('mn_annts_' + f.id) || 0)) {
+    try { const t = await c.blob.text(); st = JSON.parse(t); putBlob(annKey(f), new Blob([t])); localStorage.setItem('mn_annts_' + f.id, c.ts); } catch {}
+  }
+  return st;
+}
+function saveAnnSoon() { clearTimeout(NB.t); NB.t = setTimeout(saveAnnNow, 500); }
+async function saveAnnNow() {
+  clearTimeout(NB.t); if (!NB.f) return;
+  const blob = new Blob([JSON.stringify(NB.st)]), ts = Date.now();
+  try { await putBlob(annKey(NB.f), blob); localStorage.setItem('mn_annts_' + NB.f.id, ts); cloudPut(annKey(NB.f), blob, ts); } catch { toast('تعذّر حفظ التعديلات'); }
+}
+
+function newNotebook() {
+  openModal(`<h3 class="font-black text-blue-900">دفتر جديد</h3>
+    <input id="nb-n" placeholder="اسم الدفتر" class="w-full bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+    <select id="nb-t" class="w-full bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 text-xs"><option value="ruled">صفحات مسطّرة</option><option value="grid">مربعات</option><option value="blank">صفحات فارغة</option></select>
+    <button onclick="createNb()" class="btn w-full">إنشاء وفتح</button>`);
+}
+function createNb() {
+  if (!canAdd(S.files.length, FREE.files)) return;
+  const f = {id: Date.now(), name: $('nb-n').value.trim() || 'دفتر جديد', size: 'دفتر • صفحة', type: 'Notebook', cls: 'bg-indigo-50 text-indigo-600', icon: '📝', kind: 'nb', tpl: $('nb-t').value, pages: 1, fav: false};
+  S.files.unshift(f); save2(); closeModal(); openFile(f.id);
+}
+
+async function openFile(id) {
+  const f = S.files.find(x => x.id === id); if (!f) return;
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  const kind = f.kind || (ext === 'pdf' ? 'pdf' : f.type === 'Image' ? 'img' : /^(txt|md|csv|json|html|htm)$/.test(ext) ? 'text' : 'other');
+  let blob = null;
+  if (kind !== 'nb') {
+    blob = f.blobId ? await ensureBlob(f.blobId) : null;
+    if (!blob) { toast('محتوى هذا الملف غير محفوظ — أعد رفعه ليُفتح هنا'); return; }
+  }
+  Object.assign(NB, {f, kind, blob, pages: [], hist: [], st: await loadAnn(f), drag: null, prevSel: S.sel, keepSel: false});
+  const el = document.createElement('div');
+  el.id = 'ned'; el.className = 'fixed inset-0 z-[60] bg-slate-100 flex flex-col';
+  el.style.paddingTop = 'env(safe-area-inset-top,0px)';
+  el.innerHTML = `<div class="bg-white border-b border-blue-100 p-2 flex items-center gap-2 flex-wrap text-xs font-bold">
+      <button onclick="closeNb()" class="btn !px-3">✕ إغلاق</button>
+      <span class="truncate max-w-[40%] text-blue-900">${esc(f.name)}</span>
+      <span id="nb-bar" class="flex items-center gap-1 flex-wrap"></span><div id="nb-bar2" class="w-full flex gap-1 flex-wrap"></div></div>
+    <div id="nb-body" class="flex-1 overflow-y-auto p-2 space-y-3"><p class="text-center text-slate-400 text-xs p-6">جارٍ الفتح...</p></div>`;
+  document.body.appendChild(el); nbBar2();
+  const body = $('nb-body');
+  try {
+    if (kind === 'text') {
+      body.innerHTML = `<textarea id="nb-ta" dir="auto" class="w-full min-h-[75vh] rounded-2xl border border-blue-100 bg-white p-4 text-sm focus:outline-none"></textarea>`;
+      $('nb-ta').value = await blob.text();
+      $('nb-bar').innerHTML = `<button onclick="saveText()" class="btn !px-3">💾 حفظ التعديلات</button>`;
+    } else if (kind === 'other') {
+      body.innerHTML = `<div class="card text-center space-y-3 max-w-md mx-auto mt-10"><p class="text-sm text-slate-600">هذا النوع من الملفات لا يمكن عرضه أو تعديله داخل التطبيق.</p><button onclick="dlBlob()" class="btn">تنزيل الملف</button></div>`;
+    } else {
+      nbBar(); body.innerHTML = '';
+      if (kind === 'pdf') {
+        const lib = await loadPdfJs(); const doc = await lib.getDocument({data: await blob.arrayBuffer()}).promise;
+        for (let i = 1; i <= doc.numPages; i++) {
+          const pg = await doc.getPage(i), vp = pg.getViewport({scale: 1});
+          mkPage(i - 1, vp.height / vp.width, async (c, w) => { await pg.render({canvasContext: c.getContext('2d'), viewport: pg.getViewport({scale: w / vp.width})}).promise; });
+        }
+      } else if (kind === 'img') {
+        const img = new Image(); img.src = URL.createObjectURL(blob); await img.decode();
+        mkPage(0, img.naturalHeight / img.naturalWidth, (c, w, h) => { c.getContext('2d').drawImage(img, 0, 0, w, h); });
+      } else {
+        for (let i = 0; i < f.pages; i++) mkPage(i, 1.414, (c, w, h) => nbTpl(c.getContext('2d'), w, h, f.tpl));
+      }
+    }
+  } catch (e) { body.innerHTML = '<p class="text-center text-red-500 text-xs p-6">تعذّر فتح الملف: ' + esc(e.message || '') + '</p>'; }
+}
+function nbTpl(x, w, h, t) {
+  x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.strokeStyle = '#bfdbfe'; x.lineWidth = 1 * DPR;
+  if (t === 'ruled') { for (let y = h * .09; y < h; y += h / 30) { x.beginPath(); x.moveTo(0, y); x.lineTo(w, y); x.stroke(); } x.strokeStyle = '#fca5a5'; x.beginPath(); x.moveTo(w * .9, 0); x.lineTo(w * .9, h); x.stroke(); }
+  if (t === 'grid') { const s = w / 24; for (let p = s; p < w; p += s) { x.beginPath(); x.moveTo(p, 0); x.lineTo(p, h); x.stroke(); } for (let p = s; p < h; p += s) { x.beginPath(); x.moveTo(0, p); x.lineTo(w, p); x.stroke(); } }
+}
+function mkPage(i, aspect, paint) {
+  const body = $('nb-body'), W = Math.min(body.clientWidth - 16, 900), H = W * aspect;
+  const wrap = document.createElement('div'); wrap.className = 'relative mx-auto bg-white shadow rounded-lg overflow-hidden'; wrap.style.cssText = `width:${W}px;height:${H}px`;
+  const mk = () => { const c = document.createElement('canvas'); c.width = W * DPR; c.height = H * DPR; c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%'; wrap.appendChild(c); return c; };
+  const base = mk(), ov = mk(), p = {wrap, base, ov, W, H, done: null};
+  p.render = () => p.done || (p.done = Promise.resolve(paint(base, base.width, base.height)).then(() => drawPg(i)));
+  ov.style.touchAction = NB.tool === 'hand' ? 'auto' : 'none';
+  const pos = e => { const r = ov.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.width]; };
+  ov.onpointerdown = e => {
+    if (NB.tool === 'hand') return; e.preventDefault(); const pt = pos(e); NB.st[i] = NB.st[i] || [];
+    if (NB.tool === 'tx') { const v = prompt('اكتب النص'); if (!v) return; const s = {t: 'tx', c: NB.color, s: (10 + NB.size * 3) / 800, x: pt[0], y: pt[1], v}; NB.st[i].push(s); NB.hist.push({i, add: s}); drawPg(i); saveAnnSoon(); return; }
+    ov.setPointerCapture(e.pointerId);
+    if (NB.tool === 'er') { NB.drag = {i, er: 1}; erase(i, pt); return; }
+    const s = {t: NB.tool, c: NB.color, w: (NB.tool === 'hl' ? NB.size * 5 : NB.size) / 800, p: [pt]}; NB.st[i].push(s); NB.drag = {i, s}; drawPg(i);
+  };
+  ov.onpointermove = e => { const d = NB.drag; if (!d || d.i !== i) return; const pt = pos(e); if (d.er) erase(i, pt); else { d.s.p.push(pt); drawPg(i); } };
+  ov.onpointerup = ov.onpointercancel = () => { const d = NB.drag; if (d && d.s) { NB.hist.push({i, add: d.s}); saveAnnSoon(); } NB.drag = null; };
+  body.appendChild(wrap); NB.pages[i] = p;
+  new IntersectionObserver((en, o) => { if (en[0].isIntersecting) { p.render(); o.disconnect(); } }, {root: body, rootMargin: '800px'}).observe(wrap);
+}
+function drawPg(i) {
+  const p = NB.pages[i]; if (!p) return; const c = p.ov, x = c.getContext('2d'), k = c.width;
+  x.clearRect(0, 0, k, c.height); x.lineCap = x.lineJoin = 'round';
+  for (const s of NB.st[i] || []) {
+    if (s.t === 'tx') { x.fillStyle = s.c; x.font = `700 ${s.s * k}px Tajawal,sans-serif`; x.textBaseline = 'top'; x.fillText(s.v, s.x * k, s.y * k); continue; }
+    x.globalAlpha = s.t === 'hl' ? .35 : 1; x.strokeStyle = s.c; x.lineWidth = s.w * k; x.beginPath(); x.moveTo(s.p[0][0] * k, s.p[0][1] * k);
+    for (const q of s.p.slice(1)) x.lineTo(q[0] * k, q[1] * k); if (s.p.length === 1) x.lineTo(s.p[0][0] * k + .1, s.p[0][1] * k); x.stroke();
+  }
+  x.globalAlpha = 1;
+}
+function erase(i, pt) {
+  const hit = s => s.t === 'tx' ? pt[0] >= s.x - .01 && pt[0] <= s.x + s.v.length * s.s * .7 && pt[1] >= s.y - .01 && pt[1] <= s.y + s.s * 1.4 : s.p.some(q => Math.hypot(q[0] - pt[0], q[1] - pt[1]) < .02);
+  const gone = NB.st[i].filter(hit); if (!gone.length) return;
+  NB.st[i] = NB.st[i].filter(s => !gone.includes(s)); NB.hist.push({i, del: gone}); drawPg(i); saveAnnSoon();
+}
+function nbUndo() {
+  const h = NB.hist.pop(); if (!h) return;
+  if (h.add) NB.st[h.i] = NB.st[h.i].filter(s => s !== h.add); else NB.st[h.i].push(...h.del);
+  drawPg(h.i); saveAnnSoon();
+}
+function nbSet(k, v) {
+  NB[k] = v; nbBar();
+  NB.pages.forEach(p => p.ov.style.touchAction = NB.tool === 'hand' ? 'auto' : 'none');
+}
+function nbBar() {
+  const b = 'px-2.5 py-1.5 rounded-xl ', on = 'bg-blue-600 text-white', off = 'bg-blue-50 text-blue-700';
+  $('nb-bar').innerHTML = NB_TOOLS.map(([k, e, t]) => `<button title="${t}" onclick="nbSet('tool','${k}')" class="${b}${NB.tool === k ? on : off}">${e}</button>`).join('')
+    + NB_COLS.map(c => `<button onclick="nbSet('color','${c}')" class="w-6 h-6 rounded-full border-2 ${NB.color === c ? 'border-slate-800' : 'border-white'}" style="background:${c}"></button>`).join('')
+    + `<input type="range" min="1" max="10" value="${NB.size}" oninput="NB.size=+this.value" class="w-16">
+       <button onclick="nbUndo()" class="${b}${off}">↶ تراجع</button>
+       ${NB.kind === 'nb' ? `<button onclick="nbAddPage()" class="${b}${off}">+ صفحة</button>` : ''}
+       <button onclick="exportNb()" class="${b}${off}">⬇ PDF</button>`;
+}
+function nbAddPage() {
+  const f = NB.f; f.pages++; f.size = 'دفتر • ' + f.pages + ' صفحات'; save2();
+  mkPage(f.pages - 1, 1.414, (c, w, h) => nbTpl(c.getContext('2d'), w, h, f.tpl));
+  const b = $('nb-body'); b.scrollTo({top: b.scrollHeight, behavior: 'smooth'});
+}
+async function exportNb() {
+  toast('جارٍ تجهيز ملف PDF...');
+  try {
+    const L = await loadPdfLib(), d = await L.PDFDocument.create();
+    for (const p of NB.pages) {
+      await p.render(); const t = document.createElement('canvas'); t.width = p.base.width; t.height = p.base.height;
+      const x = t.getContext('2d'); x.drawImage(p.base, 0, 0); x.drawImage(p.ov, 0, 0);
+      const png = await d.embedPng(await new Promise(r => t.toBlob(r, 'image/png')).then(b => b.arrayBuffer()));
+      d.addPage([p.W, p.H]).drawImage(png, {x: 0, y: 0, width: p.W, height: p.H});
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([await d.save()], {type: 'application/pdf'}));
+    a.download = NB.f.name.replace(/\.[^.]+$/, '') + '-معدّل.pdf'; a.click(); toast('تم تصدير الملف');
+  } catch { toast('تعذّر التصدير'); }
+}
+async function saveText() {
+  try { await putBlob(NB.f.blobId, new Blob([$('nb-ta').value], {type: NB.blob.type || 'text/plain'})); NB.f.size = fmtSize($('nb-ta').value.length); save2(); toast('تم حفظ التعديلات'); } catch { toast('تعذّر الحفظ'); }
+}
+function dlBlob() { const a = document.createElement('a'); a.href = URL.createObjectURL(NB.blob); a.download = NB.f.name; a.click(); }
+async function closeNb() { await saveAnnNow(); if (!NB.keepSel) S.sel = NB.prevSel; NB.keepSel = false; const e = $('ned'); if (e) e.remove(); NB.f = null; render(); }
+
+
+/* ===== أدوات الملاحظات داخل عارض الملفات ===== */
+async function nbExtract(n) {
+  try {
+    let text = '';
+    if (NB.kind === 'text') text = await NB.blob.text();
+    else if (NB.kind === 'pdf') {
+      toast('جارٍ استخراج النص...');
+      const lib = await loadPdfJs(), doc = await lib.getDocument({data: await NB.blob.arrayBuffer()}).promise;
+      for (let p = 1; p <= Math.min(doc.numPages, 40) && text.length < 30000; p++) text += (await (await doc.getPage(p)).getTextContent()).items.map(i => i.str).join(' ') + '\n';
+    }
+    text = text.replace(/[ \t]+/g, ' ').trim();
+    if (text.length < 30) { if (NB.kind === 'pdf') toast('الملف ممسوح ضوئياً؛ اكتب ملاحظاتك من زر «ملاحظاتي»'); return; }
+    n.content = esc(text.slice(0, 30000)).replace(/\n/g, '<br>'); save();
+  } catch { toast('تعذّر استخراج النص'); }
+}
+async function nbNote(withText) {
+  const f = NB.f; let n = S.notes.find(x => x.id === f.noteId);
+  if (!n) { n = {id: Date.now(), title: 'ملاحظات: ' + f.name.replace(/\.[^.]+$/, ''), content: '', tags: [], date: new Date().toLocaleDateString('ar-EG'), attachments: []}; S.notes.unshift(n); f.noteId = n.id; save(); save2(); }
+  S.sel = n.id;
+  if (withText && !plain(n.content).trim()) await nbExtract(n);
+  return n;
+}
+function nbBar2() {
+  const b = (fn, t) => `<button onclick="${fn}" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold">${t}</button>`;
+  $('nb-bar2').innerHTML = b('nbNotes()', '📝 ملاحظاتي') + b('nbTeacher()', '<img src="' + IMG.teacher + '" alt="" class="inline h-4 w-4 object-contain align-middle"> المعلم الذكي')
+    + b('nbRec()', '🎙 تسجيل') + b('nbRecs()', '🎧 التسجيلات') + b('nbTags()', '🏷 ملصقات') + b("nbStudy('cards')", '🃏 بطاقات') + b("nbStudy('quiz')", '❓ اختبار');
+}
+async function nbTeacher() { await nbNote(true); openTeacher(); }
+async function nbRec() { await nbNote(); openRec(); }
+async function nbStudy(k) { await nbNote(true); studyBtn(k); }
+async function nbNotes() {
+  const n = await nbNote(true), t = (n.content || '').replace(/<br\s*\/?>/gi, '\n');
+  openModal(`<h3 class="font-black text-blue-900">📝 ملاحظاتي على الملف</h3>
+    <textarea id="nbn-t" dir="auto" class="w-full min-h-[40vh] bg-blue-50/40 border border-blue-100 rounded-2xl p-3 text-sm focus:outline-none"></textarea>
+    <div class="flex gap-2 justify-end"><button onclick="nbOpenNotes()" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold">فتح في ملاحظاتي</button><button onclick="nbSaveNote()" class="btn">حفظ</button></div>`);
+  $('nbn-t').value = plain(t);
+}
+function nbSaveNote() { const n = cur(); if (!n) return; n.content = esc($('nbn-t').value).replace(/\n/g, '<br>'); save(); closeModal(); toast('تم حفظ الملاحظة'); }
+async function nbOpenNotes() { if ($('nbn-t')) nbSaveNote(); NB.keepSel = true; await closeNb(); S.tab = 'notes'; render(); }
+async function nbTags() {
+  const n = await nbNote(), tg = tagsOf(n);
+  openModal(`<h3 class="font-black text-blue-900">🏷 ملصقات الملف</h3>
+    <div class="flex flex-wrap gap-2">${tg.map((t, i) => `<span class="chip bg-blue-50 text-blue-700">${esc(t)} <button onclick="nbTagDel(${i})">✕</button></span>`).join('') || '<span class="text-xs text-slate-400">لا توجد ملصقات</span>'}</div>
+    <div class="flex flex-wrap gap-2 text-xs">${['طب', 'محاضرة', 'مهم', 'مراجعة', 'امتحان', 'دراسة'].map(t => `<button onclick="nbTagAdd('${t}')" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold">+ ${t}</button>`).join('')}</div>
+    <div class="flex gap-2"><input id="nbtg" placeholder="ملصق جديد" onkeydown="if(event.key==='Enter')nbTagAdd()" class="flex-1 bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none"><button onclick="nbTagAdd()" class="btn">إضافة</button></div>
+    <div class="flex justify-end"><button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button></div>`);
+}
+function nbTagAdd(v) { const n = cur(), t = (v || $('nbtg')?.value || '').trim(); if (!n || !t) return; n.tags = [...new Set([...tagsOf(n), t])]; delete n.tag; save(); nbTags(); }
+function nbTagDel(i) { const n = cur(); if (!n) return; n.tags = tagsOf(n).filter((_, k) => k !== i); save(); nbTags(); }
+async function nbRecs() {
+  const n = await nbNote(), at = n.attachments || [], rows = at.map((a, i) => ({a, i})).filter(x => (x.a.mime || '').startsWith('audio') || /\.(webm|mp3|m4a|wav|ogg)$/i.test(x.a.name));
+  openModal(`<h3 class="font-black text-blue-900">🎧 التسجيلات</h3>
+    ${rows.map(({a, i}) => `<div class="flex items-center justify-between gap-2 p-3 rounded-2xl bg-blue-50/40 border border-blue-100 text-xs"><span class="truncate font-bold text-blue-900">${esc(a.name)}</span><span class="flex gap-2 shrink-0"><button onclick="openAttach(${i})" class="btn !py-1 !px-3">تشغيل</button><button onclick="removeAttach(${i});nbRecs()" class="text-slate-400">✕</button></span></div>`).join('') || '<p class="text-xs text-slate-400">لا توجد تسجيلات بعد.</p>'}
+    <div class="flex gap-2 justify-end"><button onclick="openRec()" class="btn">🎙 تسجيل جديد</button><button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold">إغلاق</button></div>`);
+}
+
+
+/* ===== مجاني: Gemini (مفتاح المستخدم) + مزامنة الملفات عبر Firestore ===== */
+const GKEY = () => localStorage.getItem('mn_gkey') || '';
+async function geminiText(prompt) {
+  let last;
+  for (const m of ['gemini-2.5-flash', 'gemini-flash-latest']) {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {method: 'POST', headers: {'Content-Type': 'application/json', 'x-goog-api-key': GKEY()}, body: JSON.stringify({contents: [{role: 'user', parts: [{text: prompt}]}], generationConfig: {temperature: .4}})});
+    if (r.status === 404) continue;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { last = new Error(j.error?.message || 'HTTP ' + r.status); last.status = r.status; throw last; }
+    const t = (j.candidates?.[0]?.content?.parts || []).map(x => x.text || '').join('');
+    if (t) return t;
+  }
+  throw last || new Error('empty');
+}
+async function getSample() {
+  try { const s = await window.claude?.use?.('sample'); if (s) return s; } catch {}
+  if (!GKEY()) return null;
+  return async prompt => { try { return {text: await geminiText(prompt)}; } catch (e) { const x = new Error('ai'); x.code = e.status === 429 ? 'rate_limited' : 'err'; throw x; } };
+}
+function geminiBox() {
+  return `<div class="view mt-4"><div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">🤖 مفتاح Gemini المجاني (للمعلم الذكي)</h3>
+    <input id="gk" type="password" dir="ltr" value="${esc(GKEY())}" placeholder="AIza..." class="w-full bg-blue-50/60 border border-blue-100 rounded-xl px-3 py-2 text-xs focus:outline-none">
+    <div class="flex gap-2 items-center"><button onclick="saveGKey()" class="btn">حفظ</button><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="text-xs text-blue-600 font-bold">احصل على مفتاح مجاني</a></div>
+    <p class="text-[10px] text-slate-400">يُحفظ المفتاح في هذا المتصفح فقط ولا يُرفع إلى أي مكان.</p></div></div>`;
+}
+const RULES_TXT = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /users/{uid}/{document=**} {\n      allow read, write: if request.auth != null && request.auth.uid == uid;\n    }\n  }\n}";
+function rulesBox() {
+  return `<div class="view mt-4"><div class="card space-y-3"><h3 class="font-extrabold text-sm text-blue-900">🔒 قواعد Firestore (مطلوبة لمزامنة الملفات)</h3>
+    <p class="text-[11px] text-slate-500">الصقها في Firebase Console ثم Firestore Database ثم Rules، واضغط Publish. تسمح لكل مستخدم بوثيقته وملفاته فقط.</p>
+    <pre dir="ltr" class="text-[10px] bg-slate-50 border border-blue-100 rounded-xl p-3 overflow-x-auto">${esc(RULES_TXT)}</pre>
+    <button onclick="navigator.clipboard.writeText(RULES_TXT).then(()=>toast('تم نسخ القواعد'))" class="btn">نسخ القواعد</button></div></div>`;
+}
+function saveGKey() { const v = $('gk').value.trim(); if (v) localStorage.setItem('mn_gkey', v); else localStorage.removeItem('mn_gkey'); toast(v ? 'تم حفظ المفتاح' : 'تم حذف المفتاح'); }
+
+const cOn = () => UID && FB;
+const CH = 524288, CLOUD_MAX = 20 * 1048576;
+const bcol = () => FB.db.collection('users').doc(UID).collection('blobs');
+const u8b64 = u => { let s = ''; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
+async function cloudPut(key, blob, ts) {
+  if (!cOn() || blob.size > CLOUD_MAX) return false;
+  try {
+    const old = await bcol().doc(key).get(), u = new Uint8Array(await blob.arrayBuffer()), n = Math.max(1, Math.ceil(u.length / CH));
+    for (let i = 0; i < n; i++) await bcol().doc(key + '~' + i).set({d: u8b64(u.subarray(i * CH, (i + 1) * CH))});
+    await bcol().doc(key).set({n, type: blob.type || '', ts: ts || 0});
+    for (let i = n; i < (old.exists ? old.data().n : 0); i++) bcol().doc(key + '~' + i).delete();
+    return true;
+  } catch { return false; }
+}
+async function cloudGet(key) {
+  if (!cOn()) return null;
+  try {
+    const m = await bcol().doc(key).get(); if (!m.exists) return null;
+    const {n, type, ts} = m.data(), parts = await Promise.all(Array.from({length: n}, (_, i) => bcol().doc(key + '~' + i).get().then(d => Uint8Array.from(atob(d.data().d), c => c.charCodeAt(0)))));
+    return {blob: new Blob(parts, {type}), ts};
+  } catch { return null; }
+}
+async function cloudDel(key) {
+  if (!cOn()) return;
+  try { const m = await bcol().doc(key).get(); if (!m.exists) return; for (let i = 0; i < m.data().n; i++) bcol().doc(key + '~' + i).delete(); bcol().doc(key).delete(); } catch {}
+}
+async function ensureBlob(key) {
+  let b = await getBlob(key).catch(() => null); if (b) return b;
+  const c = await cloudGet(key); if (!c) return null;
+  await putBlob(key, c.blob).catch(() => {}); return c.blob;
+}
+let BF = false;
+async function cloudBackfill() {
+  if (BF || !cOn()) return; BF = true;
+  try {
+    for (const f of S.files) if (f.blobId && !f.cloud) { const b = await getBlob(f.blobId).catch(() => null); if (b && await cloudPut(f.blobId, b)) { f.cloud = 1; save2(); } }
+    for (const n of S.notes) for (const a of n.attachments || []) if (a.blobId && !a.cloud) { const b = await getBlob(a.blobId).catch(() => null); if (b && await cloudPut(a.blobId, b)) { a.cloud = 1; save(); } }
+  } finally { BF = false; }
+}
+const _op5 = openPreview;
+openPreview = async function (a) { if (a.blobId) await ensureBlob(a.blobId); return _op5(a); };
+
 
 initFB();
 updateUserUI();
